@@ -216,12 +216,19 @@ export default function CaseFrontPage() {
           {/* Data flow summary */}
           <div className="case-card p-5">
             <div className="eyebrow mb-3" style={{ fontSize: 10 }}>How the data gets here</div>
+            <div
+              className="font-mono text-[10px] mb-3 px-2 py-1.5 rounded-sm"
+              style={{ background: 'var(--paper-deep)', color: 'var(--ink-muted)', border: '1px solid var(--hairline)' }}
+            >
+              Source → Fivetran → Iceberg (MDLS) → Snowflake / Athena / Trino → dbt Labs → React
+            </div>
             <div className="flex flex-col gap-3">
               {[
-                { label: 'Fivetran Connector SDK', desc: '23 long-tail sources — investigator archives, documentary transcripts, true-crime podcast feeds, FOIA portals. Not available in any standard connector catalog.' },
-                { label: 'MDLS → Apache Iceberg on S3', desc: 'Raw bytes landed as Iceberg tables. Source-type, provenance URL, and ingestion timestamp preserved. No schema transformation at landing.' },
-                { label: 'Snowflake Cortex', desc: 'Entity extraction, claim attribution, timestamp normalization across free-form text. Outputs feed the bronze → silver → gold dbt pipeline.' },
-                { label: 'dbt gold layer', desc: 'gold.fct_claim · gold.dim_suspect · gold.fct_witness_attribution · gold.fct_timeline_anchor. Governed, tested, documented.' },
+                { label: 'Sources (23 long-tail)', desc: 'Investigator archives, documentary transcripts, true-crime podcast feeds, FOIA portals, news microfilm. Not available in any standard connector catalog.' },
+                { label: 'Fivetran Connector SDK', desc: 'Every CDC row landed into Iceberg (MDLS) on S3 in open Apache Iceberg format. One copy of the bytes, source-type and provenance preserved.' },
+                { label: 'Iceberg (MDLS) on S3', desc: 'Snowflake, Athena, and Trino read the same Iceberg bytes via external catalogs. No copies, no extracts — multi-engine reads against a single open table.' },
+                { label: 'dbt Labs (bronze → silver → gold)', desc: 'Fivetran Transformations triggers dbt Labs the moment the source sync finishes. Bronze → silver → gold stays in Iceberg. Cortex extracts entities, claims, and attributions inside the dbt graph.' },
+                { label: 'React surface', desc: 'gold.fct_claim · gold.dim_suspect · gold.fct_witness_attribution · gold.fct_timeline_anchor materialize the suspect scoring, hypothesis, and timeline pages here.' },
               ].map((item) => (
                 <div key={item.label} className="flex gap-3">
                   <div

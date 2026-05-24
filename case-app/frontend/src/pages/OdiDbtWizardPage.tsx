@@ -33,11 +33,18 @@ export default function OdiDbtWizardPage() {
       <h1 className="font-serif text-3xl font-bold mb-2" style={{ color: 'var(--ink-strong)' }}>
         Ad-hoc mart authoring in 90 seconds
       </h1>
-      <p className="text-lg max-w-3xl mb-8" style={{ color: 'var(--ink-muted)' }}>
+      <p className="text-lg max-w-3xl mb-4" style={{ color: 'var(--ink-muted)' }}>
         Andrew asks a question the gold layer doesn't yet answer. Four sub-agents — Explorer, Summary,
-        Worker, Verification — collaborate to author a new dbt mart, materialize it to Iceberg, and
-        run all tests. No engineer required. Watch the live build.
+        Worker, Verification — collaborate to author a new dbt mart, materialize it to Iceberg (MDLS),
+        and run all tests. Fivetran Transformations triggers dbt Labs the moment the source sync
+        finishes; bronze → silver → gold stays in Iceberg. No engineer required. Watch the live build.
       </p>
+      <div
+        className="font-mono text-[11px] mb-8 px-3 py-2 rounded-sm inline-block"
+        style={{ background: 'var(--paper-deep)', color: 'var(--ink-muted)', border: '1px solid var(--hairline)' }}
+      >
+        Source → Fivetran → Iceberg (MDLS) → Snowflake / Athena / Trino → dbt Labs → React
+      </div>
 
       {/* Scenario card */}
       <div

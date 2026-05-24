@@ -221,12 +221,18 @@ export default function CorpusPage() {
       <h1 className="mb-3" style={{ color: 'var(--ink-strong)' }}>
         What Fivetran pulled in
       </h1>
-      <p className="text-lg max-w-3xl mb-8" style={{ color: 'var(--ink)' }}>
+      <p className="text-lg max-w-3xl mb-4" style={{ color: 'var(--ink)' }}>
         The Cobain case has no enterprise data source. Its primary record lives in unstructured form,
         books, government FOIA releases, documentary transcripts, investigator self-published
         archives, news microfilm, and podcast audio. Fivetran Connector SDK is the ingestion layer
         for all 23 long-tail sources that don't have a standard connector.
       </p>
+      <div
+        className="font-mono text-[11px] mb-8 px-3 py-2 rounded-sm inline-block"
+        style={{ background: 'var(--paper-deep)', color: 'var(--ink-muted)', border: '1px solid var(--hairline)' }}
+      >
+        Source → Fivetran → Iceberg (MDLS) → Snowflake / Athena / Trino → dbt Labs → React
+      </div>
 
       {/* Chart 1: Corpus by source-type */}
       <CorpusSourceTypeChart />
@@ -295,8 +301,9 @@ export default function CorpusPage() {
         <div className="eyebrow mb-3">Connector SDK — long-tail sources ({CONNECTOR_SOURCES.length} of 23)</div>
         <p className="text-sm mb-4" style={{ color: 'var(--ink-muted)' }}>
           These sources have no Fivetran-managed connector. Each is a custom Connector SDK implementation
-          that pulls raw bytes into Iceberg. The SDK pattern is the same whether the source is a Salesforce
-          instance or an investigator's personal archive website.
+          that lands every CDC row into Iceberg (MDLS) on S3 in open Apache Iceberg format — one copy of
+          the bytes, read by Snowflake, Athena, and Trino via external catalogs. Fivetran Transformations
+          triggers dbt Labs the moment the source sync finishes; bronze → silver → gold stays in Iceberg.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {CONNECTOR_SOURCES.map((s) => (

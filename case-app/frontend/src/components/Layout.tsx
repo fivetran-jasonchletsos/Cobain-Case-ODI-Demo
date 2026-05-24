@@ -159,9 +159,11 @@ export default function Layout() {
           <div>
             <div className="eyebrow-light mb-2">Data pipeline</div>
             <p className="leading-relaxed text-white/70">
-              Books, FOIA records, documentary transcripts, podcasts, news archives, and investigator notes
-              ingested by Fivetran (Connector SDK) into Apache Iceberg on S3. Cortex extracts entities,
-              claims, and attributions. dbt builds the governed gold layer.
+              Source → Fivetran → Iceberg (MDLS) → Snowflake / Athena / Trino → dbt Labs → React. Books,
+              FOIA records, documentary transcripts, podcasts, and investigator notes land as Iceberg on
+              S3 — one copy of the bytes, read by Snowflake, Athena, and Trino via external catalogs.
+              Fivetran Transformations triggers dbt Labs the moment the source sync finishes; bronze →
+              silver → gold stays in Iceberg.
             </p>
           </div>
           <div>
