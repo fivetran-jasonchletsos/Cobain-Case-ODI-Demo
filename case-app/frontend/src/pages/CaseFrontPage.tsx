@@ -49,6 +49,13 @@ const TIMELINE_EVENTS = [
     severity: 'neutral',
     sources: ['seattle-times-1994', 'rolling-stone-1994'],
   },
+  {
+    date: 'February 2026',
+    label: 'Burnett & Wilkins peer-reviewed forensic paper published',
+    body: 'A peer-reviewed forensic paper by Brian Burnett and Michelle Wilkins challenges the suicide ruling on three grounds: heroin-level incapacitation, blood-spatter absence, and organ necrosis consistent with prolonged circulatory collapse preceding the gunshot. Conclusion: one or more assailants. The official ruling has not been amended. Reported by Euronews, Military.com, and Seattle Times.',
+    severity: 'caution',
+    sources: ['burnett-wilkins-2026', 'euronews-2026'],
+  },
 ];
 
 const SEV_STYLE: Record<string, { border: string; dot: string; bg: string }> = {
@@ -234,7 +241,7 @@ export default function CaseFrontPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { to: '/corpus', label: 'The Corpus', desc: 'What Fivetran pulled in — source inventory, connectors, examples per type.' },
-          { to: '/scoring', label: 'Suspect Scoring', desc: 'Four suspect cards with probability scores. Toggle Grounded vs Ungrounded mode.' },
+          { to: '/scoring', label: 'Suspect Scoring', desc: '11 suspect cards with probability scores. Distinct baseline for the official ruling. Toggle Grounded vs Ungrounded mode.' },
           { to: '/hypothesis', label: "Andrew's Hypothesis", desc: 'Score the joint theory — all three suspects involved — against the record.' },
         ].map((c) => (
           <Link

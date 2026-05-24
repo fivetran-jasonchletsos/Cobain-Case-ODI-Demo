@@ -7,16 +7,17 @@
 import { useNavigate } from 'react-router-dom';
 
 const SAMPLE_QUESTIONS = [
+  'Rank the full 11-suspect slate by probability score — include the 2026 Burnett and Wilkins forensic claims as a scored input. Which suspects does the new evidence move the most, and does the joint hypothesis for Carlson, Michaelson, and Lanegan change?',
   'Cross-reference Tom Grant\'s notes with El Duce\'s published interviews — where do claimed timeline anchors overlap?',
-  'Which sources cite the same named person within a 7-day window of April 5, 1994?',
   'How many independent unsworn sources allege financial motive vs how many sworn sources corroborate it?',
 ];
 
 const EXAMPLE_MARTS = [
-  { name: 'gold.fct_grant_elduce_cross_reference', status: 'In this demo', desc: 'Joins Grant archive claims with El Duce interview segments on named person and date.' },
+  { name: 'gold.fct_suspect_ranked_probability_v2', status: 'In this demo', desc: 'Ranks all 11 suspects by probability score integrating Burnett & Wilkins (2026) forensic claims. One row per (suspect_id, model_run_id).' },
+  { name: 'gold.fct_grant_elduce_cross_reference', status: 'Existing', desc: 'Joins Grant archive claims with El Duce interview segments on named person and date.' },
   { name: 'gold.fct_claim_by_source_date', status: 'Existing', desc: 'One row per claim with source, date, and named-person attribution.' },
   { name: 'gold.fct_timeline_anchor', status: 'Existing', desc: 'Resolved timeline events with corroboration counts.' },
-  { name: 'gold.dim_suspect', status: 'Existing', desc: 'Suspect dimension with corpus feature scores.' },
+  { name: 'gold.dim_suspect', status: 'Existing', desc: 'Suspect dimension — 11 suspects with corpus feature scores and archetypes.' },
 ];
 
 export default function OdiDbtWizardPage() {
@@ -45,14 +46,14 @@ export default function OdiDbtWizardPage() {
       >
         <div className="eyebrow mb-2" style={{ fontSize: 10 }}>Today's scenario</div>
         <p className="font-serif font-semibold text-xl mb-3" style={{ color: 'var(--ink-strong)' }}>
-          "Cross-reference Tom Grant's notes with El Duce's published interviews — where do claimed
-          timeline anchors overlap?"
+          "Rank the full 11-suspect slate by probability score — include the 2026 Burnett and Wilkins
+          forensic claims as a scored input. Which suspects does the new evidence move the most?"
         </p>
         <p className="text-sm mb-4" style={{ color: 'var(--ink-muted)' }}>
-          The gold layer has staging models for both sources, but no mart joins them on a shared
-          named-person and date grain. The dbt-wizard builds
-          {' '}<span className="font-mono" style={{ color: 'var(--amber-dim)' }}>gold.fct_grant_elduce_cross_reference</span>{' '}
-          in a single 88-second build run, including tests and YAML schema documentation.
+          The gold layer has the expanded dim_suspect (11 suspects) and the new stg_burnett_wilkins_2026
+          staging model, but no mart versions them together with probability scores. The dbt-wizard builds
+          {' '}<span className="font-mono" style={{ color: 'var(--amber-dim)' }}>gold.fct_suspect_ranked_probability_v2</span>{' '}
+          in a single 92-second build run, including tests and YAML schema documentation.
         </p>
         <button
           type="button"

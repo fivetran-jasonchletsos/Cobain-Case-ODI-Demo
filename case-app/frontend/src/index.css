@@ -303,14 +303,15 @@ a:hover {
   filter: saturate(1.25);
 }
 
-.source-chip.book        { background: #eee8f5; color: #5a3d8c; border-color: #c5b8e8; }
-.source-chip.foia        { background: #e8f0ea; color: #2d5a3d; border-color: #a8d8b8; }
-.source-chip.documentary { background: #e8eef5; color: var(--rain);  border-color: #a8c0d8; }
-.source-chip.news        { background: #f2ede7; color: #6e4a2c; border-color: #d0b898; }
-.source-chip.investigator{ background: var(--cassette-bg); color: var(--cassette-dim); border-color: #d8c898; }
-.source-chip.podcast     { background: #f0e8f0; color: #6e2c4a; border-color: #d0a8c0; }
-.source-chip.court       { background: #f0f0e8; color: #4a4a2c; border-color: #c8c8a8; }
-.source-chip.sworn       { background: #fdf0e8; color: #92400e; border-color: #e8b890; }
+.source-chip.book          { background: #eee8f5; color: #5a3d8c; border-color: #c5b8e8; }
+.source-chip.foia          { background: #e8f0ea; color: #2d5a3d; border-color: #a8d8b8; }
+.source-chip.documentary   { background: #e8eef5; color: var(--rain);  border-color: #a8c0d8; }
+.source-chip.news          { background: #f2ede7; color: #6e4a2c; border-color: #d0b898; }
+.source-chip.investigator  { background: var(--cassette-bg); color: var(--cassette-dim); border-color: #d8c898; }
+.source-chip.podcast       { background: #f0e8f0; color: #6e2c4a; border-color: #d0a8c0; }
+.source-chip.court         { background: #f0f0e8; color: #4a4a2c; border-color: #c8c8a8; }
+.source-chip.sworn         { background: #fdf0e8; color: #92400e; border-color: #e8b890; }
+.source-chip.peer-reviewed { background: #e6f0f8; color: #1a4a6e; border-color: #88b8d8; }
 
 /* ── Status pills: rust=contradiction, cassette=corroboration, rain=neutral ── */
 .status-pill {

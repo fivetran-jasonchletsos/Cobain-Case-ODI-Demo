@@ -1,6 +1,6 @@
 /*
  * Page 5: Andrew's Hypothesis
- * Joint probability for all three named suspects involved.
+ * Joint probability for Andrew's named suspects across the expanded 11-suspect slate.
  * Honest output — corroborating and contradicting evidence.
  */
 
@@ -9,9 +9,13 @@ import { Link } from 'react-router-dom';
 import { SUSPECTS, SOURCES } from '../data/suspects';
 import { scoreSuspect, scoreJointHypothesis, DEFAULT_WEIGHTS } from '../data/scoring';
 
-const ANDREW_SUSPECTS = SUSPECTS.filter((s) =>
-  ['carlson', 'michaelson', 'lanegan'].includes(s.id)
-);
+// Andrew's three originally named suspects
+const ANDREW_CORE_IDS = ['carlson', 'michaelson', 'lanegan'];
+// Extended pool: adding DeWitt (named by Grant and closely tied to the theory)
+const EXTENDED_POOL_IDS = ['carlson', 'michaelson', 'lanegan', 'dewitt'];
+
+const ANDREW_SUSPECTS = SUSPECTS.filter((s) => ANDREW_CORE_IDS.includes(s.id));
+const EXTENDED_POOL = SUSPECTS.filter((s) => EXTENDED_POOL_IDS.includes(s.id));
 
 // Corpus claims that specifically address the joint hypothesis
 const JOINT_CORROBORATING = [
@@ -27,6 +31,10 @@ const JOINT_CORROBORATING = [
     text: 'Halperin & Wallace (2004) note that proximity and access to the residence in the April 5–8 window was not exclusive to any single person, and that coordinated involvement is theoretically consistent with the physical evidence.',
     sourceIds: ['halperin-2004'],
   },
+  {
+    text: 'Burnett & Wilkins (2026) conclude that physical evidence — heroin level, spatter absence, organ necrosis — is consistent with one or more assailants incapacitating Cobain before staging the shooting. This supports a multi-party hypothesis without naming individuals.',
+    sourceIds: ['burnett-wilkins-2026', 'euronews-2026', 'military-com-2026'],
+  },
 ];
 
 const JOINT_CONTRADICTING = [
@@ -39,6 +47,10 @@ const JOINT_CONTRADICTING = [
     sourceIds: ['grant-archive', 'spd-report-1994'],
   },
   {
+    text: 'Chris Michaelson cannot be matched to any individual in the mainstream Cobain investigative literature. The model scores him near zero due to absent corpus signal.',
+    sourceIds: ['spd-report-1994'],
+  },
+  {
     text: 'The King County Medical Examiner autopsy report found no evidence inconsistent with a self-inflicted gunshot wound. Physical evidence as documented supports the suicide ruling.',
     sourceIds: ['kcme-autopsy-1994'],
   },
@@ -47,30 +59,32 @@ const JOINT_CONTRADICTING = [
     sourceIds: ['cross-2001'],
   },
   {
-    text: 'No forensic evidence in any public document links Dylan Carlson or the houseguest figure to the greenhouse where the death occurred during the estimated death window.',
+    text: 'No forensic evidence in any public document links Dylan Carlson to the greenhouse where the death occurred during the estimated death window.',
     sourceIds: ['spd-report-1994'],
   },
 ];
 
 export default function HypothesisPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [showExtended, setShowExtended] = useState(false);
 
-  const scores = useMemo(() => {
-    const carlson = ANDREW_SUSPECTS.find((s) => s.id === 'carlson')!;
-    const michaelson = ANDREW_SUSPECTS.find((s) => s.id === 'michaelson')!;
-    const lanegan = ANDREW_SUSPECTS.find((s) => s.id === 'lanegan')!;
-    return {
-      carlson: scoreSuspect(carlson.features, DEFAULT_WEIGHTS, true),
-      michaelson: scoreSuspect(michaelson.features, DEFAULT_WEIGHTS, true),
-      lanegan: scoreSuspect(lanegan.features, DEFAULT_WEIGHTS, true),
-    };
+  const allScores = useMemo(() => {
+    const result: Record<string, ReturnType<typeof scoreSuspect>> = {};
+    for (const s of SUSPECTS) {
+      result[s.id] = scoreSuspect(s.features, DEFAULT_WEIGHTS, true);
+    }
+    return result;
   }, []);
 
-  const joint = useMemo(() => scoreJointHypothesis(scores, ['carlson', 'michaelson', 'lanegan']), [scores]);
+  const coreJoint = useMemo(() => scoreJointHypothesis(allScores, ANDREW_CORE_IDS), [allScores]);
+  const extendedJoint = useMemo(() => scoreJointHypothesis(allScores, EXTENDED_POOL_IDS), [allScores]);
 
-  const jPct = Math.round(joint.joint_probability * 100);
-  const jLo  = Math.round(joint.joint_ci_lower * 100);
-  const jHi  = Math.round(joint.joint_ci_upper * 100);
+  const activeJoint = showExtended ? extendedJoint : coreJoint;
+  const activeSuspects = showExtended ? EXTENDED_POOL : ANDREW_SUSPECTS;
+
+  const jPct = Math.round(activeJoint.joint_probability * 100);
+  const jLo  = Math.round(activeJoint.joint_ci_lower * 100);
+  const jHi  = Math.round(activeJoint.joint_ci_upper * 100);
 
   const jColor = jPct > 45 ? 'var(--caution)' : jPct > 30 ? 'var(--amber-dim)' : 'var(--slate-mist)';
 
@@ -78,12 +92,14 @@ export default function HypothesisPage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="eyebrow mb-2">Cobain Case ODI · Andrew's Hypothesis</div>
       <h1 className="font-serif text-3xl font-bold mb-2" style={{ color: 'var(--ink-strong)' }}>
-        Andrew's three-suspect joint hypothesis
+        Andrew's hypothesis — joint probability
       </h1>
       <p className="text-lg max-w-3xl mb-8" style={{ color: 'var(--ink-muted)' }}>
-        Andrew has held this theory for years: that Dylan Carlson, the houseguest figure, and Mark
+        Andrew has held this theory for years: that Dylan Carlson, Chris Michaelson, and Mark
         Lanegan were involved — individually or in coordination. This page scores the joint hypothesis
-        honestly against the corpus. The model surfaces both corroborating and contradicting evidence.
+        honestly against the corpus across the full 11-suspect slate. Toggle to include the extended
+        pool (adding Michael "Cali" DeWitt, named by Tom Grant). The model surfaces both corroborating
+        and contradicting evidence.
       </p>
 
       {/* Official ruling */}
@@ -95,8 +111,39 @@ export default function HypothesisPage() {
           Official ruling:
         </span>{' '}
         Seattle PD Case #94-108620 (1994) — suicide. King County Medical Examiner — self-inflicted
-        contact gunshot wound. This model does not overturn or assert an alternative to that ruling.
-        All output is model-derived from published public sources only.
+        contact gunshot wound. The Cobain death remains officially classified as suicide as of
+        February 2026. The Burnett &amp; Wilkins (2026) peer-reviewed paper challenges the ruling but
+        has not prompted a formal reinvestigation. This model does not overturn or assert an
+        alternative to the official ruling.
+      </div>
+
+      {/* Pool toggle */}
+      <div className="mb-6 flex items-center gap-4 flex-wrap">
+        <div className="eyebrow" style={{ fontSize: 10 }}>Hypothesis scope</div>
+        <button
+          type="button"
+          onClick={() => setShowExtended(false)}
+          className="font-mono text-[11px] px-3 py-1.5 rounded-sm border transition-colors"
+          style={{
+            background: !showExtended ? 'var(--amber-bg)' : 'var(--paper-deep)',
+            borderColor: !showExtended ? 'var(--amber-dim)' : 'var(--hairline)',
+            color: !showExtended ? 'var(--amber-dim)' : 'var(--ink-muted)',
+          }}
+        >
+          Andrew's 3 (Carlson + Michaelson + Lanegan)
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowExtended(true)}
+          className="font-mono text-[11px] px-3 py-1.5 rounded-sm border transition-colors"
+          style={{
+            background: showExtended ? 'var(--amber-bg)' : 'var(--paper-deep)',
+            borderColor: showExtended ? 'var(--amber-dim)' : 'var(--hairline)',
+            color: showExtended ? 'var(--amber-dim)' : 'var(--ink-muted)',
+          }}
+        >
+          Extended pool (+ DeWitt)
+        </button>
       </div>
 
       {/* Joint score */}
@@ -112,7 +159,7 @@ export default function HypothesisPage() {
               95% CI [{jLo}%, {jHi}%]
             </div>
             <div className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>
-              P(at least one of the three is involved) — naive Bayes union
+              P(at least one of the {activeSuspects.length} is involved) — naive Bayes union
             </div>
           </div>
         </div>
@@ -130,15 +177,15 @@ export default function HypothesisPage() {
           style={{ background: 'var(--amber-bg)', borderColor: 'var(--amber-dim)', color: 'var(--ink)' }}
         >
           <span className="font-semibold">Model interpretation: </span>
-          {joint.interpretation}
+          {activeJoint.interpretation}
         </div>
       </div>
 
       {/* Individual scores summary */}
       <div className="eyebrow mb-3">Individual component scores (grounded)</div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        {ANDREW_SUSPECTS.map((s) => {
-          const r = scores[s.id as 'carlson' | 'michaelson' | 'lanegan'];
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {activeSuspects.map((s) => {
+          const r = allScores[s.id];
           const pPct = Math.round(r.probability * 100);
           return (
             <div key={s.id} className="case-card p-4">
@@ -164,6 +211,11 @@ export default function HypothesisPage() {
                   style={{ width: `${pPct}%`, background: 'var(--amber)' }}
                 />
               </div>
+              {s.sourceNote && (
+                <p className="mt-1 text-[10px] font-mono" style={{ color: 'var(--slate)' }}>
+                  Source pending — invite Andrew to identify
+                </p>
+              )}
               <Link
                 to={`/suspect/${s.id}`}
                 className="mt-3 inline-block font-mono text-[10px] uppercase tracking-wider"
@@ -233,11 +285,17 @@ export default function HypothesisPage() {
       <div className="case-card p-5">
         <div className="eyebrow mb-3" style={{ fontSize: 10 }}>Joint probability methodology</div>
         <p className="text-sm mb-3" style={{ color: 'var(--ink-muted)' }}>
-          The joint probability is computed as P(A ∪ B ∪ C) = 1 − P(¬A) × P(¬B) × P(¬C), applying
+          The joint probability is computed as P(A ∪ B ∪ ... ∪ N) = 1 − ∏ᵢ P(¬Sᵢ), applying
           a naive Bayes independence assumption. This assumption is almost certainly violated in
           reality — if one suspect is involved, the others may be more or less likely to be involved
           as well. The independence assumption widens the joint CI and should be treated as an upper
           bound on the joint score.
+        </p>
+        <p className="text-sm mb-3" style={{ color: 'var(--ink-muted)' }}>
+          Note on Chris Michaelson: named by Andrew Chletsos. No matching individual appears in
+          mainstream Cobain investigative literature. The model scores him near zero due to absent
+          corpus signal. When Andrew identifies the source he is drawing from, the corpus will be
+          updated and all scores re-run.
         </p>
         <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
           The model reflects corpus density — how much published evidence touches each suspect on
@@ -274,7 +332,7 @@ logit(s) =
 P(s) = sigmoid(logit(s)) = 1 / (1 + exp(-logit(s)))
 
 -- Joint hypothesis (union, independence):
-P(joint) = 1 - (1-P(carlson)) * (1-P(michaelson)) * (1-P(lanegan))`}
+P(joint) = 1 - prod_i(1 - P(suspect_i))  -- across the active pool`}
           </pre>
         )}
       </div>

@@ -1,35 +1,35 @@
 {
   "company": "Cobain Case ODI",
-  "request_id": "CLD-1994-INV-0042",
+  "request_id": "CLD-1994-INV-0047",
   "requested_by": "Andrew Chletsos, Investigation Analyst",
   "requested_at": "2026-05-23T09:15:00-08:00",
   "timezone_label": "Friday 09:15 PST",
-  "question": "Cross-reference Tom Grant's investigation notes with El Duce's published interviews — where do claimed timeline anchors overlap?",
-  "metric_label": "Grant notes × El Duce cross-reference by date and named person",
-  "metric_code": "gold.fct_grant_elduce_cross_reference",
+  "question": "Rank the full 11-suspect slate by probability score — include the 2026 Burnett and Wilkins forensic claims as a scored input. Which suspects does the new peer-reviewed evidence move the most, and does the joint hypothesis for Carlson, Michaelson, and Lanegan change?",
+  "metric_label": "11-suspect ranked probability model · Burnett & Wilkins 2026 integrated",
+  "metric_code": "gold.fct_suspect_ranked_probability_v2",
   "target_schema": "gold",
-  "target_model": "fct_grant_elduce_cross_reference",
-  "target_grain": "one row per (source_id, claim_date, attributed_to)",
+  "target_model": "fct_suspect_ranked_probability_v2",
+  "target_grain": "one row per (suspect_id, model_run_id)",
   "upstream_models": [
     {
-      "model": "stg_grant_investigation_notes",
+      "model": "stg_burnett_wilkins_2026",
       "layer": "staging",
-      "grain": "note_id",
-      "description": "Tom Grant investigation archive. Includes date, named persons, claim text, and context. Ingested via Connector SDK from tomgrant.com published records."
+      "grain": "claim_id",
+      "description": "Burnett & Wilkins (2026) peer-reviewed forensic paper claims, ingested via Connector SDK from Euronews, Military.com, and Seattle Times 2026 coverage. Three gold-layer claims: heroin-level incapacitation argument, blood-spatter absence, organ necrosis consistent with prolonged circulatory collapse."
     },
     {
-      "model": "stg_elduce_interview_transcripts",
-      "layer": "staging",
-      "grain": "transcript_segment_id",
-      "description": "El Duce (Eldon Hoke) interview transcript from Broomfield's Kurt & Courtney (1998). Segmented by speaker turn. Ingested from documentary transcript archive."
+      "model": "gold.dim_suspect",
+      "layer": "gold",
+      "grain": "suspect_id",
+      "description": "Suspect dimension — 11 suspects spanning baselines, primaries, secondaries, witnesses, commentators, and the John Doe unknown-assailant placeholder."
     },
     {
-      "model": "int_timeline_anchors",
-      "layer": "intermediate",
-      "grain": "anchor_id",
-      "description": "Resolved timeline events April 5–8, 1994 and surrounding period. Built from SPD report, autopsy, and Cross (2001) corroborated dates."
+      "model": "gold.fct_claim",
+      "layer": "gold",
+      "grain": "claim_id",
+      "description": "All extracted corpus claims with source_type, named_person, direction (supporting/contradicting), sworn flag, and confidence score from Cortex."
     }
   ],
   "manual_time_days": "4 to 7 days",
-  "build_room_seconds": 88
+  "build_room_seconds": 92
 }

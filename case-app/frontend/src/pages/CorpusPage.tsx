@@ -117,7 +117,7 @@ const SOURCE_EXAMPLES = [
   {
     type: 'News Archives',
     chipClass: 'news',
-    count: 312,
+    count: 336,
     examples: [
       {
         title: 'Seattle Times, April 1994 coverage',
@@ -133,6 +133,45 @@ const SOURCE_EXAMPLES = [
         year: 1994,
         publisher: 'Rolling Stone',
         notes: 'Post-death profile. Contemporaneous accounts of the Seattle music community\'s reaction.',
+        sworn: false,
+      },
+      {
+        title: 'Euronews, "Forensic experts\' new report claims Kurt Cobain may have been murdered"',
+        author: 'Euronews staff',
+        year: 2026,
+        publisher: 'Euronews (2026-02-11)',
+        notes: 'Reports the Burnett & Wilkins peer-reviewed paper findings: lack of blood spatter, heroin-level argument, organ necrosis. Notes the official ruling has not been amended.',
+        sworn: false,
+      },
+      {
+        title: 'Military.com, "New murder claims reignite debate over Kurt Cobain\'s death"',
+        author: 'Military.com staff',
+        year: 2026,
+        publisher: 'Military.com (2026-02-20)',
+        notes: 'Summarizes the 2026 forensic paper\'s key claims. Notes the death remains officially classified as suicide as of February 2026.',
+        sworn: false,
+      },
+      {
+        title: 'Seattle Times, "Kurt Cobain death debate reignites with new forensic claims"',
+        author: 'Seattle Times staff',
+        year: 2026,
+        publisher: 'Seattle Times (2026)',
+        notes: 'Seattle-originated coverage of the Burnett & Wilkins 2026 paper. Notes no formal reinvestigation has been opened.',
+        sworn: false,
+      },
+    ],
+  },
+  {
+    type: 'Peer-Reviewed',
+    chipClass: 'peer-reviewed',
+    count: 2,
+    examples: [
+      {
+        title: 'Burnett & Wilkins forensic paper',
+        author: 'Brian Burnett & Michelle Wilkins',
+        year: 2026,
+        publisher: 'Peer-reviewed journal (February 2026)',
+        notes: 'Challenges the suicide ruling on three grounds: (1) 1.52 mg/L heroin level argued to be incapacitating before any gunshot; (2) lack of blood spatter on the left hand inconsistent with self-infliction; (3) brain and liver necrosis consistent with prolonged circulatory collapse from heroin overdose preceding the shot. Concludes one or more assailants forcibly administered heroin. Status: official ruling unchanged as of February 2026.',
         sworn: false,
       },
     ],
@@ -168,6 +207,10 @@ const CONNECTOR_SOURCES = [
   'ProQuest Historical Newspapers — Seattle Times archives',
   'Factiva — Rolling Stone, NME, Melody Maker archives',
   'Lexis+ — legal filings related to the estate',
+  'Euronews API — 2026 forensic coverage ingestion',
+  'Military.com article archive — 2026 forensic coverage',
+  'PubMed / journal crawl — Burnett & Wilkins 2026 paper',
+  'Hank Harrison public statements archive (self-published)',
 ];
 
 export default function CorpusPage() {
