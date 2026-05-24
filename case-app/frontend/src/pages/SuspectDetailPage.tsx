@@ -49,19 +49,25 @@ export default function SuspectDetailPage() {
         </Link>
 
         <div className="eyebrow mb-2">Cobain Case ODI · Suspect Detail</div>
-        <div className="flex items-start gap-5 flex-wrap">
+        <div className="flex items-start gap-5 flex-wrap relative">
           <div
             className="h-20 w-20 rounded-sm flex items-center justify-center font-mono font-bold text-3xl shrink-0"
             style={{ background: 'var(--slate-deep)', color: 'var(--amber)', border: '2px solid var(--slate-soft)' }}
           >
             {suspect.initials}
           </div>
-          <div>
-            <h1 className="font-serif text-3xl font-bold" style={{ color: 'var(--ink-strong)' }}>
+          <div className="flex-1 min-w-0">
+            <div className="font-stamp text-sm mb-1" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+              File: subject dossier
+            </div>
+            <h1 style={{ color: 'var(--ink-strong)' }}>
               {suspect.name}
             </h1>
-            <p className="text-lg mt-1" style={{ color: 'var(--ink-muted)' }}>{suspect.role}</p>
-            <div className="eyebrow mt-1" style={{ fontSize: 9 }}>{suspect.label}</div>
+            <p className="text-lg mt-2" style={{ color: 'var(--ink-soft)' }}>{suspect.role}</p>
+            <div className="eyebrow mt-2" style={{ fontSize: 10 }}>{suspect.label}</div>
+          </div>
+          <div className="ml-auto hidden sm:block self-start mt-1">
+            <span className="stamp stamp--sm">Case No. 94-108620</span>
           </div>
         </div>
       </div>

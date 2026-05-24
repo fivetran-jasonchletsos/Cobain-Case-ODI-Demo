@@ -96,30 +96,38 @@ export default function HypothesisPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="eyebrow mb-2">Cobain Case ODI · Andrew's Hypothesis</div>
-      <h1 className="font-serif text-3xl font-bold mb-2" style={{ color: 'var(--ink-strong)' }}>
-        Andrew's hypothesis — joint probability
+      <h1 className="mb-3" style={{ color: 'var(--ink-strong)' }}>
+        Andrew's hypothesis, joint probability
       </h1>
-      <p className="text-lg max-w-3xl mb-8" style={{ color: 'var(--ink-muted)' }}>
-        Andrew has held this theory for years: that Dylan Carlson, Chris Michaelson, and Mark
-        Lanegan were involved — individually or in coordination. This page scores the joint hypothesis
-        honestly against the corpus across the full 11-suspect slate. Toggle to include the extended
-        pool (adding Michael "Cali" DeWitt, named by Tom Grant). The model surfaces both corroborating
-        and contradicting evidence.
-      </p>
 
-      {/* Official ruling */}
-      <div
-        className="mb-8 p-4 rounded-sm border text-sm"
-        style={{ background: 'var(--fog-bg)', borderColor: '#c0ccd8' }}
-      >
-        <span className="font-mono font-semibold" style={{ color: 'var(--slate)' }}>
-          Official ruling:
-        </span>{' '}
-        Seattle PD Case #94-108620 (1994) — suicide. King County Medical Examiner — self-inflicted
-        contact gunshot wound. The Cobain death remains officially classified as suicide as of
-        February 2026. The Burnett &amp; Wilkins (2026) peer-reviewed paper challenges the ruling but
-        has not prompted a formal reinvestigation. This model does not overturn or assert an
-        alternative to the official ruling.
+      {/* Witness intake form, evidence card */}
+      <div className="evidence-card max-w-4xl mb-8" style={{ paddingTop: '1.75rem' }}>
+        <div className="flex items-start justify-between gap-4 flex-wrap mb-3">
+          <div className="eyebrow" style={{ fontSize: 11 }}>Intake form, witness statement</div>
+          <span className="stamp stamp--sm">Witness: Andrew Chletsos</span>
+        </div>
+        <p className="text-lg" style={{ color: 'var(--ink)', maxWidth: '60ch' }}>
+          Andrew has held this theory for years, that Dylan Carlson, Chris Michaelson, and Mark
+          Lanegan were involved, individually or in coordination. This page scores the joint
+          hypothesis honestly against the corpus across the full 11-suspect slate. Toggle to include
+          the extended pool (adding Michael "Cali" DeWitt, named by Tom Grant). The model surfaces
+          both corroborating and contradicting evidence.
+        </p>
+      </div>
+
+      {/* Official ruling callout */}
+      <div className="casefile-callout mb-8 max-w-4xl">
+        <span className="casefile-callout__stamp">Official Record</span>
+        <div className="eyebrow mb-2" style={{ color: 'var(--official-blue)', fontSize: 11 }}>
+          Seattle PD · King County ME
+        </div>
+        <p className="text-base" style={{ color: 'var(--ink)' }}>
+          Seattle PD Case #94-108620 (1994), suicide. King County Medical Examiner, self-inflicted
+          contact gunshot wound. The Cobain death remains officially classified as suicide as of
+          February 2026. The Burnett and Wilkins (2026) peer-reviewed paper challenges the ruling
+          but has not prompted a formal reinvestigation. This model does not overturn or assert an
+          alternative to the official ruling.
+        </p>
       </div>
 
       {/* Pool toggle */}

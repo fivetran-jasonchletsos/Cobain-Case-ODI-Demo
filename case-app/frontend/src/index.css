@@ -1,78 +1,93 @@
 @import "tailwindcss";
 
 /*
- * Cobain Case ODI Demo — Grunge / Pacific Northwest 1994 aesthetic
- * Think: a zine investigating a death in Aberdeen, WA.
- * Weathered paper, typewriter notes, photocopier grain, faded rain palette.
- * NOT cartoony / tabloid. Somber and editorial.
+ * Cobain Case ODI Demo — Dossier / case-file aesthetic
+ * Manila folder, rubber stamps, paperclips, typewritten margin notes,
+ * official-record callouts. Wallace+Halperin "Love & Death" reading voice
+ * paired with Tom Grant investigator-archive treatment.
  *
- * Typography:
- *   Body:    Special Elite (distressed typewriter, ~17px, line-height 1.65)
- *   Display: Workbench (heavy industrial, h1/h2 only)
- *   Mono:    JetBrains Mono (citations, kickers, data labels)
+ * Type system:
+ *   Body / reading text  → Crimson Pro (literary serif, readable)
+ *   Display headlines    → Workbench (heavy stencil, 36px+ only)
+ *   Stamps / eyebrows    → Special Elite (typewritten voice, never body)
+ *   Data / citations     → JetBrains Mono (tabular, IDs, log-LR)
  */
 
 /* ── Design tokens ─────────────────────────────────────── */
 :root {
-  /* Surfaces */
-  --paper:         #e8e1cf;   /* aged-paper cream */
-  --paper-deep:    #ddd5c0;   /* slightly deeper for table headers / tier-2 bg */
-  --card:          #ede7d6;   /* card bg — slightly lighter than body */
+  /* Surfaces — richer manila/parchment than before */
+  --paper:         #ece3cf;   /* warmer/darker manila */
+  --paper-deep:    #ddd2b8;   /* tab strip, table headers */
+  --card:          #f1ead7;   /* sheet of paper on the folder */
 
-  /* Ink */
-  --ink:           #1f1d1a;   /* faded carbon black — primary text */
-  --ink-soft:      #5e5b54;   /* faded grey — secondary text */
-  --ink-muted:     #7a766d;   /* tertiary, placeholder */
-  --ink-strong:    #111009;   /* headings */
+  /* Ink — strengthened contrast */
+  --ink:           #0e0e0c;   /* true black for body */
+  --ink-soft:      #3d3a32;   /* secondary — much stronger than before */
+  --ink-muted:     #57534a;   /* tertiary, placeholders */
+  --ink-strong:    #0a0a08;   /* headings */
 
-  /* Pacific NW rain blue */
-  --rain:          #3a5572;   /* links, accent strips — Nevermind pool faded 30 years */
-  --rain-light:    #5a7a9a;   /* lighter variant */
-  --rain-bg:       #dce6ef;   /* very faint blue bg */
+  /* Pacific NW rain blue — kept */
+  --rain:          #3a5572;
+  --rain-light:    #5a7a9a;
+  --rain-bg:       #d6e2ed;
 
-  /* Cassette-label gold */
-  --cassette:      #c4a747;   /* eyebrow/kicker text, active states */
-  --cassette-dim:  #8a7230;   /* darker variant */
-  --cassette-bg:   #f5edd9;   /* faint gold bg */
+  /* Cassette-label gold — kept */
+  --cassette:      #b89a3a;
+  --cassette-dim:  #7c6826;
+  --cassette-bg:   #f2e8cd;
 
-  /* Rust red — sparingly: alerts, contradictions, official ruling */
-  --rust:          #8b2e1f;
-  --rust-bg:       #f5e8e6;
+  /* Vermillion rust — bolder for stamps and contradictions */
+  --rust:          #b8341e;
+  --rust-bg:       #f5dcd6;
 
-  /* Smudge — photocopier edge, borders, hairlines */
-  --smudge:        #9a948a;
-  --smudge-soft:   #bdb6ab;
-  --smudge-faint:  #cdc7bc;
+  /* NEW: stamp-red — rubber-stamp ink */
+  --stamp-red:     #a82a18;
+
+  /* NEW: official-blue — for "Official ruling" callouts */
+  --official-blue: #3a5577;
+  --official-blue-bg: #d8e1ec;
+
+  /* NEW: corroboration — faded military green */
+  --corroboration: #5a6b3d;
+  --corroboration-bg: #e2e7d2;
+
+  /* Smudge — borders, hairlines */
+  --smudge:        #8a8478;
+  --smudge-soft:   #b0a99c;
+  --smudge-faint:  #c8c0b0;
 
   /* Status (mapped to new palette) */
-  --alert:         var(--rust);
+  --alert:         var(--stamp-red);
   --alert-bg:      var(--rust-bg);
-  --confirm:       #2d5a3d;
-  --confirm-bg:    #e6f0ea;
+  --confirm:       var(--corroboration);
+  --confirm-bg:    var(--corroboration-bg);
   --caution:       var(--cassette-dim);
   --caution-bg:    var(--cassette-bg);
   --neutral-bg:    var(--paper-deep);
 
-  /* Legacy aliases (so pages that still reference them don't break) */
-  --slate-deep:    #2a3040;
-  --slate:         #3a4858;
-  --slate-soft:    #4e5e73;
-  --slate-mist:    #6b7d93;
+  /* Legacy aliases (so existing pages don't break) */
+  --slate-deep:    #1f2530;
+  --slate:         #2f3a48;
+  --slate-soft:    #3f4d5e;
+  --slate-mist:    #5a6b80;
   --hairline:      var(--smudge-faint);
-  --hairline-soft: #d8d1c3;
+  --hairline-soft: #d4ccb8;
   --amber:         var(--cassette);
   --amber-bright:  #d4bc7a;
   --amber-dim:     var(--cassette-dim);
   --amber-bg:      var(--cassette-bg);
-  --fog:           #8fa3b8;
-  --fog-bg:        #dce6ef;
+  --fog:           var(--official-blue);
+  --fog-bg:        var(--official-blue-bg);
 
   /* Grain texture — feTurbulence fractal noise at low opacity */
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23g)' opacity='0.055'/%3E%3C/svg%3E");
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23g)' opacity='0.06'/%3E%3C/svg%3E");
+
+  /* Newsprint halftone — actual dot grid (not noise) */
+  --newsprint: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%230e0e0c'/%3E%3C/svg%3E");
 }
 
 @theme {
-  /* Tailwind color overrides — map to grunge palette */
+  /* Tailwind color overrides — map to dossier palette */
   --color-slate-50:  #f1eeea;
   --color-slate-100: #e5dfd5;
   --color-slate-200: #ccc5b8;
@@ -84,25 +99,45 @@
   --color-slate-800: #1c1b18;
   --color-slate-900: #111009;
 
-  --font-sans:  "Special Elite", Georgia, serif;
-  --font-serif: "Special Elite", Georgia, serif;
-  --font-mono:  "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  /* Tailwind font tokens.
+     font-sans  → Crimson Pro (readable body)
+     font-serif → Crimson Pro (every legacy .font-serif now reads as body serif)
+     font-mono  → JetBrains Mono
+     font-stamp → Special Elite (use explicitly for stamps/marginalia)
+     font-display → Workbench */
+  --font-sans:    "Crimson Pro", Georgia, "Times New Roman", serif;
+  --font-serif:   "Crimson Pro", Georgia, "Times New Roman", serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-stamp:   "Special Elite", Georgia, serif;
+  --font-display: "Workbench", "Special Elite", Georgia, serif;
 }
 
 /* ── Base ──────────────────────────────────────────────── */
 html, body {
   background-color: var(--paper);
   color: var(--ink);
-  font-family: "Special Elite", Georgia, "Times New Roman", serif;
+  font-family: "Crimson Pro", Georgia, "Times New Roman", serif;
   font-size: 17px;
-  line-height: 1.65;
+  line-height: 1.6;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* All paragraphs use the literary serif at readable weight */
+p {
+  font-family: "Crimson Pro", Georgia, serif;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+/* List items + table cells inherit Crimson Pro */
+li {
+  font-family: "Crimson Pro", Georgia, serif;
+}
+
 /* ── Background atmosphere: grain + ruled lines + vignette ── */
 body::before {
-  /* Photocopier grain */
   content: "";
   position: fixed;
   inset: 0;
@@ -115,11 +150,10 @@ body::before {
 }
 
 body::after {
-  /* Vignette: photocopier-edge darkening at extremes */
   content: "";
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(31, 29, 26, 0.22) 100%);
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(14, 14, 12, 0.24) 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -130,7 +164,6 @@ body::after {
   100% { opacity: 1; }
 }
 
-/* Ruled page lines — very faint, like notebook paper */
 #root {
   position: relative;
   z-index: 1;
@@ -143,67 +176,84 @@ body::after {
     to bottom,
     transparent 0px,
     transparent 27px,
-    rgba(154, 148, 138, 0.07) 28px
+    rgba(138, 132, 120, 0.07) 28px
   );
   pointer-events: none;
   z-index: 0;
 }
 
-/* ── Display headings: Workbench only for h1 and h2 ─────── */
+/* ── Display headings: Workbench for h1/h2 only ─────── */
 h1, h2 {
   font-family: "Workbench", "Special Elite", Georgia, serif;
   font-variation-settings: "SCAN" -60, "BTTM" 0;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
   color: var(--ink-strong);
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
-/* Push h1 extra heavy */
 h1 {
-  font-size: clamp(32px, 5vw, 64px);
+  font-size: clamp(36px, 5.5vw, 72px);
 }
 
 h2 {
-  font-size: clamp(22px, 3vw, 36px);
+  font-size: clamp(26px, 3.2vw, 40px);
 }
 
-/* Body headings (h3–h6): Special Elite, not Workbench */
+/*
+ * h3–h6 + every .font-serif element render as Crimson Pro body serif.
+ * Display tightening via slightly heavier weight, not a different family.
+ * This is the key fix — body copy was wrongly rendering Special Elite.
+ */
 h3, h4, h5, h6, .font-serif {
-  font-family: "Special Elite", Georgia, serif;
-  letter-spacing: 0.01em;
+  font-family: "Crimson Pro", Georgia, serif;
+  letter-spacing: 0;
   color: var(--ink-strong);
+  font-weight: 600;
+  line-height: 1.25;
 }
 
-/* p keeps the relaxed typewriter line-height */
-p { line-height: 1.65; }
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.15rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.9rem; }
 
 a {
   color: var(--rain);
-  text-decoration-color: rgba(58, 85, 114, 0.35);
+  text-decoration-color: rgba(58, 85, 114, 0.4);
   transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
 a:hover {
   color: var(--rain-light);
-  text-decoration-color: rgba(90, 122, 154, 0.6);
+  text-decoration-color: rgba(90, 122, 154, 0.7);
+}
+
+/* Utility font classes */
+.font-stamp {
+  font-family: "Special Elite", Georgia, serif;
+  letter-spacing: 0.02em;
+}
+.font-display {
+  font-family: "Workbench", "Special Elite", Georgia, serif;
+  font-variation-settings: "SCAN" -60, "BTTM" 0;
+  letter-spacing: -0.01em;
 }
 
 /* ── Institutional accent rail ─────────────────────────── */
 .institutional-rail {
   height: 3px;
   background: linear-gradient(90deg,
-    var(--rust)      0%,
-    var(--rain)      35%,
-    var(--cassette)  65%,
-    var(--rust)      100%
+    var(--stamp-red)    0%,
+    var(--official-blue) 35%,
+    var(--cassette)     65%,
+    var(--stamp-red)    100%
   );
 }
 
-/* ── Page animation: staggered fade-up, CSS-only ────────── */
+/* ── Page animation ────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -220,22 +270,15 @@ a:hover {
 
 .page-enter { animation: fadeUp 0.45s 0.06s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* ── Case-file cards ───────────────────────────────────── */
-/*
- * Off-paper bg, 1px smudge border, photocopied-stack shadow.
- * The subtle rotation is applied only to the .case-card--tilted variant
- * so it hits at most one card per row (restraint per brief).
- */
+/* ── Case-file cards (legacy) ──────────────────────────── */
 .case-card {
   background: var(--card);
   border: 1px solid var(--smudge-faint);
   border-radius: 3px;
-  /* Offset shadow — photocopied stack feel, no blur */
-  box-shadow: 0 1px 0 #c8c1ad, 2px 3px 0 #d0c8b3;
+  box-shadow: 0 1px 0 #c8c0a8, 2px 3px 0 #d0c8b0;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   position: relative;
 }
-
 .case-card::before {
   content: "";
   position: absolute;
@@ -248,42 +291,193 @@ a:hover {
   opacity: 0;
   transition: opacity 0.18s ease;
 }
-
 .case-card:hover {
   border-color: var(--smudge);
-  box-shadow: 0 1px 0 #b8b1a0, 3px 5px 0 #c5bca8;
+  box-shadow: 0 1px 0 #b8b0a0, 3px 5px 0 #c5bca8;
   transform: translateY(-1px);
 }
-
 .case-card:hover::before { opacity: 1; }
+.case-card--tilted { transform: rotate(0.5deg); }
+.case-card--tilted:hover { transform: rotate(0.5deg) translateY(-1px); }
 
-/* Restraint: only ONE card per row gets the tilt */
-.case-card--tilted {
-  transform: rotate(0.5deg);
-}
-.case-card--tilted:hover {
-  transform: rotate(0.5deg) translateY(-1px);
-}
+/* ──────────────────────────────────────────────────────── */
+/* TACTILE DOSSIER COMPONENTS                               */
+/* ──────────────────────────────────────────────────────── */
 
-/* ── Eyebrow labels ────────────────────────────────────── */
-.eyebrow {
-  font-size: 0.62rem;
-  font-weight: 700;
-  font-family: "JetBrains Mono", monospace;
+/* .stamp — rotated rubber-stamp treatment */
+.stamp {
+  display: inline-block;
+  font-family: "Special Elite", Georgia, serif;
+  font-size: 0.78rem;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.17em;
+  letter-spacing: 0.18em;
+  color: var(--stamp-red);
+  border: 2px solid var(--stamp-red);
+  padding: 6px 14px;
+  border-radius: 2px;
+  opacity: 0.85;
+  transform: rotate(-7deg);
+  background: transparent;
+  white-space: nowrap;
+  line-height: 1;
+}
+.stamp.stamp--blue   { color: var(--official-blue); border-color: var(--official-blue); }
+.stamp.stamp--green  { color: var(--corroboration); border-color: var(--corroboration); }
+.stamp.stamp--gold   { color: var(--cassette-dim); border-color: var(--cassette-dim); }
+.stamp.stamp--upright { transform: rotate(0deg); }
+.stamp.stamp--tilt-left { transform: rotate(-7deg); }
+.stamp.stamp--tilt-right { transform: rotate(5deg); }
+.stamp.stamp--lg { font-size: 1rem; padding: 8px 18px; }
+.stamp.stamp--sm { font-size: 0.62rem; padding: 4px 9px; letter-spacing: 0.16em; }
+
+/* .redaction-bar — hover-to-reveal redacted text */
+.redaction-bar {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--ink);
+  border-radius: 4px;
+  padding: 2px 10px;
+  transform: skew(-2deg);
+  cursor: help;
+  transition: color 0.15s ease, background 0.15s ease;
+  font-family: "Special Elite", Georgia, serif;
+  font-size: 0.85em;
+}
+.redaction-bar:hover {
+  color: #fff;
+  background: var(--ink);
+}
+
+/* .case-file-tab — manila-folder-tab masthead treatment.
+   Bottom edge has a notch that reads like a folder tab. */
+.case-file-tab {
+  position: relative;
+  background: var(--paper-deep);
+  padding: 14px 28px 18px 28px;
+  border: 1px solid var(--smudge-soft);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  clip-path: polygon(
+    0 0,
+    72% 0,
+    78% 18%,
+    100% 18%,
+    100% 100%,
+    0 100%
+  );
+  box-shadow: 0 -1px 0 rgba(0,0,0,0.05) inset;
+}
+
+/* .evidence-card — sheet of paper with paperclip affordance */
+.evidence-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--smudge-faint);
+  border-radius: 3px;
+  padding: 1.5rem 1.25rem 1.25rem 1.25rem;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.02),
+    0 1px 0 #c8c0a8,
+    2px 4px 0 #d0c8b0;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+.evidence-card:hover {
+  border-color: var(--smudge);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.02),
+    0 1px 0 #b8b0a0,
+    3px 6px 0 #c5bca8;
+  transform: translateY(-1px);
+}
+/* Paperclip SVG in top-left, rotated 30deg, muted */
+.evidence-card::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 14px;
+  width: 22px;
+  height: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 44' fill='none' stroke='%237a766d' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M 6 4 L 6 30 Q 6 38 11 38 Q 16 38 16 30 L 16 10 Q 16 6 13 6 Q 10 6 10 10 L 10 28'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  transform: rotate(30deg);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.evidence-card.evidence-card--no-clip::before { display: none; }
+
+/* .newsprint-texture — actual halftone dot grid for hero sections */
+.newsprint-texture {
+  position: relative;
+}
+.newsprint-texture::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--newsprint);
+  background-repeat: repeat;
+  background-size: 4px 4px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+/* .casefile-callout — "Official ruling" style box */
+.casefile-callout {
+  position: relative;
+  background: var(--official-blue-bg);
+  border: 1px solid var(--official-blue);
+  border-left: 4px solid var(--official-blue);
+  border-radius: 2px;
+  padding: 1.1rem 1.25rem 1.1rem 1.25rem;
+}
+.casefile-callout > .casefile-callout__stamp {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-family: "Special Elite", Georgia, serif;
+  font-size: 0.62rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--official-blue);
+  border: 1.5px solid var(--official-blue);
+  padding: 3px 8px;
+  border-radius: 2px;
+  opacity: 0.85;
+  transform: rotate(3deg);
+  background: transparent;
+  pointer-events: none;
+}
+
+/* ── Eyebrow labels — typewritten investigator voice ─────── */
+.eyebrow {
+  font-size: 0.66rem;
+  font-weight: 400;
+  font-family: "Special Elite", Georgia, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
   color: var(--cassette-dim);
 }
 .eyebrow-light {
-  font-size: 0.62rem;
-  font-weight: 700;
-  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  font-weight: 400;
+  font-family: "Special Elite", Georgia, serif;
   text-transform: uppercase;
-  letter-spacing: 0.17em;
+  letter-spacing: 0.18em;
   color: var(--cassette);
 }
 
-/* ── Citation / source chips — cassette-gold border ────── */
+/* Marginalia — small typewritten side notes */
+.marginalia {
+  font-family: "Special Elite", Georgia, serif;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* ── Citation / source chips ────────────────────────────── */
 .source-chip {
   display: inline-flex;
   align-items: center;
@@ -298,29 +492,38 @@ a:hover {
   border: 1px solid;
   transition: filter 0.15s ease;
 }
-
-.case-card:hover .source-chip {
+.case-card:hover .source-chip,
+.evidence-card:hover .source-chip {
   filter: saturate(1.25);
 }
 
 .source-chip.book          { background: #eee8f5; color: #5a3d8c; border-color: #c5b8e8; }
-.source-chip.foia          { background: #e8f0ea; color: #2d5a3d; border-color: #a8d8b8; }
-.source-chip.documentary   { background: #e8eef5; color: var(--rain);  border-color: #a8c0d8; }
-.source-chip.news          { background: #f2ede7; color: #6e4a2c; border-color: #d0b898; }
+.source-chip.foia          { background: var(--corroboration-bg); color: var(--corroboration); border-color: #b8c6a0; }
+.source-chip.documentary   { background: #e0ebf2; color: var(--rain);  border-color: #a8c0d8; }
+.source-chip.news          { background: #f2ede0; color: #6e4a2c; border-color: #d0b898; }
 .source-chip.investigator  { background: var(--cassette-bg); color: var(--cassette-dim); border-color: #d8c898; }
 .source-chip.podcast       { background: #f0e8f0; color: #6e2c4a; border-color: #d0a8c0; }
-.source-chip.court         { background: #f0f0e8; color: #4a4a2c; border-color: #c8c8a8; }
-.source-chip.sworn         { background: #fdf0e8; color: #92400e; border-color: #e8b890; }
-.source-chip.peer-reviewed { background: #e6f0f8; color: #1a4a6e; border-color: #88b8d8; }
+.source-chip.court         { background: #f0f0e0; color: #4a4a2c; border-color: #c8c8a0; }
+.source-chip.sworn         { background: #fdf0e0; color: #92400e; border-color: #e8b890; }
+.source-chip.peer-reviewed { background: #dceaf4; color: #1a4a6e; border-color: #88b8d8; }
 
-/* ── Status pills: rust=contradiction, cassette=corroboration, rain=neutral ── */
+/* Stamp-styled source chip variant (uses Special Elite + bordered) */
+.source-chip.stamp-style {
+  font-family: "Special Elite", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  background: transparent;
+  border-width: 1.5px;
+}
+
+/* ── Status pills ────────────────────────────────────────── */
 .status-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
   padding: 0.125rem 0.625rem;
   border-radius: 2px;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-family: "JetBrains Mono", monospace;
   font-weight: 700;
   text-transform: uppercase;
@@ -336,20 +539,20 @@ a:hover {
   background: currentColor;
 }
 .status-pill.amber   { background: var(--cassette-bg); color: var(--cassette-dim); border-color: #d8c898; }
-.status-pill.confirm { background: var(--confirm-bg);  color: var(--confirm);      border-color: #a8d8b8; }
-.status-pill.alert   { background: var(--rust-bg);     color: var(--rust);         border-color: #e0b0a8; }
-.status-pill.neutral { background: var(--paper-deep);  color: var(--ink-muted);    border-color: var(--smudge-faint); }
+.status-pill.confirm { background: var(--confirm-bg);  color: var(--confirm);      border-color: #b8c6a0; }
+.status-pill.alert   { background: var(--rust-bg);     color: var(--stamp-red);    border-color: #e0a89a; }
+.status-pill.neutral { background: var(--paper-deep);  color: var(--ink-soft);     border-color: var(--smudge-faint); }
 .status-pill.caution { background: var(--cassette-bg); color: var(--cassette-dim); border-color: #d8c898; }
 
 /* ── Data tables ───────────────────────────────────────── */
 .data-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .data-table th {
   text-align: left;
-  font-size: 0.58rem;
-  font-weight: 800;
-  font-family: "JetBrains Mono", monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-family: "Special Elite", Georgia, serif;
   text-transform: uppercase;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
   color: var(--ink-soft);
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--smudge-faint);
@@ -358,17 +561,17 @@ a:hover {
 .data-table td {
   padding: 0.625rem 0.75rem;
   border-bottom: 1px solid var(--hairline-soft);
-  font-size: 0.9rem;
-  font-family: "Special Elite", Georgia, serif;
+  font-size: 0.95rem;
+  font-family: "Crimson Pro", Georgia, serif;
   color: var(--ink);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 .data-table tbody tr:hover { background: var(--paper-deep); }
 .data-table .num {
   text-align: right;
   font-family: "JetBrains Mono", monospace;
   font-weight: 500;
-  font-size: 0.8125rem;
+  font-size: 0.85rem;
 }
 
 /* ── Section rule ──────────────────────────────────────── */
@@ -380,7 +583,7 @@ a:hover {
 }
 
 /* ── Scrollbar ─────────────────────────────────────────── */
-::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: var(--paper-deep); }
 ::-webkit-scrollbar-thumb { background: var(--smudge); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
@@ -392,12 +595,22 @@ a:hover {
   border-radius: 2px;
 }
 
+/* ── Mobile touch targets ──────────────────────────────── */
+@media (max-width: 640px) {
+  button, a[role="button"], .stamp, .source-chip, .status-pill {
+    min-height: 36px;
+  }
+  /* nav links + main CTAs */
+  nav a, .case-card[href], .evidence-card[href] {
+    min-height: 44px;
+  }
+}
+
 /* ── Probability bar ───────────────────────────────────── */
 .prob-bar-fill {
   transition: width 0.7s 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Workbench for the big probability number */
 .prob-number {
   font-family: "Workbench", "Special Elite", serif;
   font-variation-settings: "SCAN" -60, "BTTM" 0;
@@ -410,7 +623,7 @@ a:hover {
   height: 18px;
 }
 
-/* ── Toggle switch: chunky, mechanical cassette-tape style ── */
+/* ── Toggle switch ─────────────────────────────────────── */
 .toggle-track {
   display: inline-flex;
   align-items: center;
@@ -440,7 +653,7 @@ a:hover {
   background: var(--cassette);
 }
 
-/* ── Wizard terminal: stays dark for SQL/YAML readability ── */
+/* ── Wizard terminal: dark mode for SQL/YAML readability ── */
 .wizard-terminal {
   --t-bg:       #0a1020;
   --t-surface:  #0f1828;
@@ -465,7 +678,6 @@ a:hover {
   margin-bottom: 12px;
   box-shadow: 0 1px 0 #0a1020, 3px 4px 0 #08101e;
 }
-/* macOS-style title bar */
 .wizard-terminal::before {
   content: '';
   position: absolute;
@@ -498,12 +710,14 @@ a:hover {
 }
 .wizard-terminal > * { position: relative; z-index: 1; }
 
-.wizard-terminal .case-card {
+.wizard-terminal .case-card,
+.wizard-terminal .evidence-card {
   background: var(--t-surface) !important;
   border-color: var(--t-line) !important;
   color: var(--t-text);
   box-shadow: none;
 }
+.wizard-terminal .evidence-card::before { display: none; }
 .wizard-terminal .case-card header,
 .wizard-terminal .case-card > .border-b {
   border-color: var(--t-line) !important;
@@ -575,7 +789,3 @@ a:hover {
 .wtok-com   { color: #6a7d98; font-style: italic; }
 .wtok-num   { color: #c89060; }
 .wtok-jinja { color: #e060a8; font-weight: 600; }
-
-/* ── Responsive: suspect grid ────────────────────────────── */
-/* Applied via utility classes in TSX — defined here for documentation */
-/* grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 with 11 suspects post-expansion */

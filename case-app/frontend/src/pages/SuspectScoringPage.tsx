@@ -137,8 +137,11 @@ function SuspectCard({
 
   return (
     <div
-      className="case-card overflow-hidden"
-      style={isBaseline ? { border: `1.5px solid ${style.accent}`, boxShadow: `0 0 0 1px ${style.accent}22` } : {}}
+      className="evidence-card evidence-card--no-clip overflow-hidden"
+      style={Object.assign(
+        { padding: 0 },
+        isBaseline ? { border: `1.5px solid ${style.accent}`, boxShadow: `0 0 0 1px ${style.accent}22, 2px 4px 0 #d0c8b0` } : {},
+      )}
     >
       <div
         className="px-5 py-4 border-b flex items-start gap-3"
@@ -190,7 +193,7 @@ function SuspectCard({
               {style.labelText}
             </span>
           </div>
-          <div className="text-sm mt-0.5" style={{ color: 'var(--ink-muted)' }}>{suspect.role}</div>
+          <div className="text-[15px] mt-0.5" style={{ color: 'var(--ink-soft)' }}>{suspect.role}</div>
           <div className="eyebrow mt-1" style={{ fontSize: 9 }}>{suspect.label}</div>
         </div>
       </div>
@@ -315,14 +318,18 @@ export default function SuspectScoringPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="eyebrow mb-2">Cobain Case ODI · Suspect Scoring</div>
-      <h1 className="font-serif text-3xl font-bold mb-2" style={{ color: 'var(--ink-strong)' }}>
+      <h1 className="mb-3" style={{ color: 'var(--ink-strong)' }}>
         Probability scoring model
       </h1>
-      <p className="text-lg max-w-3xl mb-6" style={{ color: 'var(--ink-muted)' }}>
+      <p className="text-lg max-w-3xl mb-6" style={{ color: 'var(--ink)' }}>
         Bayesian log-likelihood-ratio model across 11 suspects and archetypes. Each score is a
-        posterior probability: logit(prior) + sum of per-feature log-LRs, passed through sigmoid.
-        Output is a model estimate — not a forensic determination. The official ruling is suicide.
-        Toggle Grounded mode off to see what the model looks like without Fivetran.
+        posterior probability: logit(prior) plus the sum of per-feature log-LRs, passed through a
+        sigmoid. Output is a model estimate, not a forensic determination. The official ruling is
+        suicide. Toggle Grounded mode off to see what the model looks like without Fivetran.
+      </p>
+      <p className="marginalia max-w-3xl mb-6">
+        Investigator's note: the forest plot below carries 95% confidence bands. Treat any non-baseline
+        score with overlapping CI as inconclusive.
       </p>
 
       {/* Chart 5: Forest plot — headline chart */}
@@ -336,13 +343,18 @@ export default function SuspectScoringPage() {
         <div className="flex items-center gap-4 flex-wrap">
           <div>
             <div className="eyebrow mb-0.5" style={{ fontSize: 10 }}>Data mode</div>
-            <div className="font-serif font-semibold text-lg" style={{ color: 'var(--ink-strong)' }}>
-              {grounded ? 'Grounded mode — Fivetran on' : 'Ungrounded mode — Fivetran off'}
+            <div className="flex items-center gap-3 mb-1">
+              <span className={`stamp stamp--sm ${grounded ? 'stamp--green' : ''}`}>
+                {grounded ? 'Grounded' : 'Ungrounded'}
+              </span>
+              <span className="font-serif font-semibold text-lg" style={{ color: 'var(--ink-strong)' }}>
+                {grounded ? 'Fivetran on' : 'Fivetran off'}
+              </span>
             </div>
-            <div className="text-sm" style={{ color: 'var(--ink-muted)' }}>
+            <div className="text-[15px]" style={{ color: 'var(--ink-soft)', maxWidth: '52ch' }}>
               {grounded
                 ? 'Scores derived from corpus features. CIs reflect available evidence density.'
-                : 'No corpus data. Scores collapse to ~uniform prior. CIs widen to 8–52%.'}
+                : 'No corpus data. Scores collapse to a near-uniform prior. CIs widen to 8 to 52 percent.'}
             </div>
           </div>
           <button
@@ -350,14 +362,15 @@ export default function SuspectScoringPage() {
             onClick={() => setGrounded((g) => !g)}
             className="inline-flex items-center gap-3 rounded-sm px-4 py-2 font-mono font-semibold text-sm border transition-colors"
             style={{
-              background: grounded ? 'rgba(45, 90, 61, 0.08)' : 'rgba(139, 44, 44, 0.08)',
-              borderColor: grounded ? '#a8d8b8' : '#f5c2c2',
-              color: grounded ? 'var(--confirm)' : 'var(--alert)',
+              background: grounded ? 'rgba(90, 107, 61, 0.10)' : 'rgba(168, 42, 24, 0.08)',
+              borderColor: grounded ? '#b8c6a0' : '#e0a89a',
+              color: grounded ? 'var(--corroboration)' : 'var(--stamp-red)',
+              minHeight: 44,
             }}
           >
             <span
               className="toggle-track"
-              style={{ background: grounded ? 'var(--confirm)' : '#ddd' }}
+              style={{ background: grounded ? 'var(--corroboration)' : '#ddd' }}
             >
               <span
                 className="toggle-thumb"

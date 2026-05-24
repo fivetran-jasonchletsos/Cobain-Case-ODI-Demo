@@ -218,14 +218,14 @@ export default function CorpusPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="eyebrow mb-2">Cobain Case ODI · The Corpus</div>
-      <h1 className="font-serif text-3xl font-bold mb-2" style={{ color: 'var(--ink-strong)' }}>
+      <h1 className="mb-3" style={{ color: 'var(--ink-strong)' }}>
         What Fivetran pulled in
       </h1>
-      <p className="text-lg max-w-3xl mb-8" style={{ color: 'var(--ink-muted)' }}>
-        The Cobain case has no enterprise data source. Its primary record lives in unstructured form —
-        books, government FOIA releases, documentary transcripts, investigator self-published archives,
-        news microfilm, and podcast audio. Fivetran Connector SDK is the ingestion layer for all 23
-        long-tail sources that don't have a standard connector.
+      <p className="text-lg max-w-3xl mb-8" style={{ color: 'var(--ink)' }}>
+        The Cobain case has no enterprise data source. Its primary record lives in unstructured form,
+        books, government FOIA releases, documentary transcripts, investigator self-published
+        archives, news microfilm, and podcast audio. Fivetran Connector SDK is the ingestion layer
+        for all 23 long-tail sources that don't have a standard connector.
       </p>
 
       {/* Chart 1: Corpus by source-type */}
@@ -256,8 +256,8 @@ export default function CorpusPage() {
               style={{ borderColor: 'var(--hairline)', background: 'var(--paper-deep)' }}
             >
               <div className="flex items-center gap-3">
-                <span className={`source-chip ${group.chipClass}`}>{group.type}</span>
-                <span className="font-serif font-semibold" style={{ color: 'var(--ink-strong)' }}>{group.type}</span>
+                <span className={`source-chip stamp-style ${group.chipClass}`}>{group.type}</span>
+                <span className="font-serif font-semibold text-lg" style={{ color: 'var(--ink-strong)' }}>{group.type}</span>
               </div>
               <div className="font-mono font-bold text-lg" style={{ color: 'var(--amber-dim)' }}>
                 {group.count.toLocaleString()}
@@ -271,7 +271,7 @@ export default function CorpusPage() {
                       <span className="font-semibold" style={{ color: 'var(--ink-strong)' }}>
                         {ex.title}
                       </span>
-                      <span className="text-sm ml-2" style={{ color: 'var(--ink-muted)' }}>
+                      <span className="text-[15px] ml-2" style={{ color: 'var(--ink-soft)' }}>
                         {ex.author}, {ex.year}
                       </span>
                     </div>
@@ -282,7 +282,7 @@ export default function CorpusPage() {
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>{ex.notes}</p>
+                  <p className="text-[15px]" style={{ color: 'var(--ink-soft)' }}>{ex.notes}</p>
                 </div>
               ))}
             </div>

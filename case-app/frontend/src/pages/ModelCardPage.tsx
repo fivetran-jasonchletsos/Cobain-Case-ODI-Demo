@@ -28,12 +28,16 @@ export default function ModelCardPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="eyebrow mb-2">Cobain Case ODI · Model Card</div>
-      <h1 className="font-serif text-3xl font-bold mb-2" style={{ color: 'var(--ink-strong)' }}>
+      <h1 className="mb-3" style={{ color: 'var(--ink-strong)' }}>
         Scoring model card
       </h1>
-      <p className="text-lg max-w-3xl mb-8" style={{ color: 'var(--ink-muted)' }}>
+      <p className="text-lg max-w-3xl mb-2" style={{ color: 'var(--ink)' }}>
         Full documentation of the Bayesian log-likelihood-ratio scoring model. This page lists
-        every assumption explicitly so a data scientist can audit, challenge, or reconfigure the model.
+        every assumption explicitly so a data scientist can audit, challenge, or reconfigure the
+        model.
+      </p>
+      <p className="marginalia max-w-3xl mb-8">
+        Methodological appendix, version 1.0, dated 2026-05-22.
       </p>
 
       {/* ── Section 1: Calibration disclosure ── */}

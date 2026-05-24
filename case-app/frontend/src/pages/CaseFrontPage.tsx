@@ -69,61 +69,61 @@ export default function CaseFrontPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
 
-      {/* ── Hero ── */}
-      <div className="mb-10">
-        <div className="eyebrow mb-2">Cobain Case ODI · Case Front</div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-3" style={{ color: 'var(--ink-strong)' }}>
-          Can a grounded model tell us anything about a 30-year-old unresolved question?
-        </h1>
-        <p className="text-lg max-w-3xl" style={{ color: 'var(--ink-muted)' }}>
-          This demo answers a different question first: what happens when you run an AI probability model
-          without grounded data, versus with it. The Cobain case lives in unstructured data — books, FOIA
-          records, documentary transcripts, investigator notes. Almost none of it is in a database. Fivetran
-          is what makes the AI-grade data possible.
-        </p>
+      {/* ── Hero / Case-file tab masthead ── */}
+      <div className="mb-10 newsprint-texture relative">
+        {/* CONFIDENTIAL stamp in the top-right */}
+        <div className="absolute right-0 top-0 hidden sm:block">
+          <span className="stamp stamp--lg">Confidential</span>
+        </div>
 
+        <div className="case-file-tab mb-0 max-w-3xl">
+          <div className="eyebrow" style={{ fontSize: 11 }}>
+            Case File · No. 94-108620 · Cobain Case ODI · Page 1
+          </div>
+        </div>
         <div
-          className="mt-6 p-5 rounded-sm border-l-4 max-w-3xl"
-          style={{
-            borderLeftColor: 'var(--amber)',
-            background: 'var(--amber-bg)',
-            borderTop: '1px solid var(--hairline)',
-            borderRight: '1px solid var(--hairline)',
-            borderBottom: '1px solid var(--hairline)',
-          }}
+          className="border-t-0 border max-w-3xl px-7 py-7"
+          style={{ background: 'var(--card)', borderColor: 'var(--smudge-soft)', borderRadius: '0 0 6px 6px' }}
         >
-          <div className="eyebrow mb-1" style={{ fontSize: 10 }}>The headline message</div>
-          <p className="font-serif font-semibold text-xl" style={{ color: 'var(--ink-strong)' }}>
+          <h1 className="mb-4" style={{ color: 'var(--ink-strong)' }}>
+            Can a grounded model tell us anything about a 30-year-old unresolved question?
+          </h1>
+          <p className="text-lg" style={{ color: 'var(--ink)', maxWidth: '60ch' }}>
+            This demo answers a different question first: what happens when you run an AI
+            probability model without grounded data, versus with it. The Cobain case lives in
+            unstructured data, books, FOIA records, documentary transcripts, investigator notes.
+            Almost none of it is in a database. Fivetran is what makes the AI-grade data possible.
+          </p>
+        </div>
+
+        {/* Headline-message evidence card with paperclip */}
+        <div className="evidence-card mt-7 max-w-3xl">
+          <div className="eyebrow mb-2" style={{ fontSize: 11 }}>Exhibit A — the headline message</div>
+          <p className="font-serif font-semibold text-xl" style={{ color: 'var(--ink-strong)', lineHeight: 1.35 }}>
             AI is useless without grounded data. Fivetran is what makes the messy AI-grade data possible.
           </p>
-          <p className="mt-2 text-sm" style={{ color: 'var(--ink-muted)' }}>
+          <p className="mt-3 text-base" style={{ color: 'var(--ink-soft)' }}>
             Toggle between Grounded and Ungrounded mode on the Suspect Scoring page to see exactly what
-            changes — and why the CI bands widen to near-uniform priors without corpus data behind them.
+            changes, and why the CI bands widen to near-uniform priors without corpus data behind them.
           </p>
         </div>
       </div>
 
-      {/* ── Official ruling banner ── */}
-      <div
-        className="mb-8 p-4 rounded-sm border flex items-start gap-3"
-        style={{ background: 'var(--fog-bg)', borderColor: '#c0ccd8' }}
-      >
-        <div
-          className="shrink-0 mt-0.5 h-5 w-5 rounded-full flex items-center justify-center"
-          style={{ background: '#6b7d93', color: 'white', fontSize: 11, fontWeight: 700, fontFamily: 'monospace' }}
-        >
-          !
+      {/* ── Official ruling — casefile-callout ── */}
+      <div className="casefile-callout mb-10 max-w-4xl">
+        <span className="casefile-callout__stamp">Official Record</span>
+        <div className="eyebrow mb-2" style={{ color: 'var(--official-blue)', fontSize: 11 }}>
+          Seattle Police Department · King County Medical Examiner
         </div>
-        <div>
-          <p className="font-mono text-sm font-semibold" style={{ color: '#2c3340' }}>
-            Official ruling: Seattle PD Case #94-108620 (1994) — Manner of death: suicide. King County
-            Medical Examiner — Cause: contact gunshot wound to the head. Self-inflicted.
-          </p>
-          <p className="mt-1 text-sm" style={{ color: 'var(--ink-muted)' }}>
-            This model tests Andrew's hypothesis against the public record. It does not assert an alternative
-            to the official ruling. All probability outputs are model estimates, not forensic findings.
-          </p>
-        </div>
+        <p className="font-serif font-semibold text-lg" style={{ color: 'var(--ink-strong)' }}>
+          Official ruling, Seattle PD Case #94-108620 (1994). Manner of death, suicide. King County
+          Medical Examiner, cause, contact gunshot wound to the head. Self-inflicted.
+        </p>
+        <p className="mt-2 text-base" style={{ color: 'var(--ink-soft)' }}>
+          This model tests Andrew's hypothesis against the public record. It does not assert an
+          alternative to the official ruling. All probability outputs are model estimates, not
+          forensic findings.
+        </p>
       </div>
 
       {/* Chart 2: Claim density timeline */}
@@ -155,7 +155,7 @@ export default function CaseFrontPage() {
                       {ev.label}
                     </span>
                   </div>
-                  <p className="text-sm leading-snug" style={{ color: 'var(--ink-muted)' }}>
+                  <p className="text-[15px] leading-snug" style={{ color: 'var(--ink-soft)' }}>
                     {ev.body}
                   </p>
                 </div>
@@ -232,7 +232,7 @@ export default function CaseFrontPage() {
                     <div className="font-mono text-[12px] font-semibold" style={{ color: 'var(--ink-strong)' }}>
                       {item.label}
                     </div>
-                    <div className="text-sm" style={{ color: 'var(--ink-muted)' }}>{item.desc}</div>
+                    <div className="text-[15px]" style={{ color: 'var(--ink-soft)' }}>{item.desc}</div>
                   </div>
                 </div>
               ))}
@@ -258,7 +258,7 @@ export default function CaseFrontPage() {
             <div className="font-serif font-semibold text-lg" style={{ color: 'var(--ink-strong)' }}>
               {c.label}
             </div>
-            <div className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>{c.desc}</div>
+            <div className="text-[15px] mt-1" style={{ color: 'var(--ink-soft)' }}>{c.desc}</div>
           </Link>
         ))}
       </div>
