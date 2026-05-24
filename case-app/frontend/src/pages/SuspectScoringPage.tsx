@@ -16,6 +16,9 @@ import {
   type FeatureWeights,
   type ScoreResult,
 } from '../data/scoring';
+import ForestPlot from '../components/ForestPlot';
+import SuspectMentionQualityChart from '../components/SuspectMentionQualityChart';
+import GroundedUngroundedChart from '../components/GroundedUngroundedChart';
 
 const WEIGHT_LABELS: { key: keyof FeatureWeights; label: string; desc: string }[] = [
   { key: 'motive',               label: 'Motive weight',               desc: 'Financial, personal, professional motive mentions' },
@@ -322,6 +325,9 @@ export default function SuspectScoringPage() {
         Toggle Grounded mode off to see what the model looks like without Fivetran.
       </p>
 
+      {/* Chart 5: Forest plot — headline chart */}
+      <ForestPlot grounded={grounded} />
+
       {/* ── Grounded / Ungrounded toggle ── */}
       <div
         className="mb-8 p-4 rounded-sm border flex items-center justify-between flex-wrap gap-4 sticky top-20 z-10"
@@ -371,6 +377,9 @@ export default function SuspectScoringPage() {
         </button>
       </div>
 
+      {/* Chart 6: Grounded vs Ungrounded paired comparison — near the toggle */}
+      <GroundedUngroundedChart />
+
       {/* ── Sensitivity sliders ── */}
       {showSliders && (
         <div className="case-card p-5 mb-8">
@@ -419,6 +428,9 @@ export default function SuspectScoringPage() {
           </button>
         </div>
       )}
+
+      {/* Chart 3: Suspect mention distribution by source quality — above suspect cards */}
+      <SuspectMentionQualityChart />
 
       {/* ── Baseline card (Kurt Cobain / official ruling) ── */}
       {baseline && (

@@ -4,6 +4,7 @@
  */
 
 import { CORPUS_STATS, SOURCES } from '../data/suspects';
+import CorpusSourceTypeChart from '../components/CorpusSourceTypeChart';
 
 const SOURCE_EXAMPLES = [
   {
@@ -226,6 +227,9 @@ export default function CorpusPage() {
         news microfilm, and podcast audio. Fivetran Connector SDK is the ingestion layer for all 23
         long-tail sources that don't have a standard connector.
       </p>
+
+      {/* Chart 1: Corpus by source-type */}
+      <CorpusSourceTypeChart />
 
       {/* Summary tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">

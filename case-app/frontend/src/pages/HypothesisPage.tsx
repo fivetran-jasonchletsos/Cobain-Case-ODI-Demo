@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SUSPECTS, SOURCES } from '../data/suspects';
 import { scoreSuspect, scoreJointHypothesis, DEFAULT_WEIGHTS, ANDREW_DEPENDENCY_RHO } from '../data/scoring';
+import CorroborationDivergingBar from '../components/CorroborationDivergingBar';
 
 // Andrew's three originally named suspects
 const ANDREW_CORE_IDS = ['carlson', 'michaelson', 'lanegan'];
@@ -310,6 +311,9 @@ export default function HypothesisPage() {
           </div>
         </div>
       </div>
+
+      {/* Chart 7 (Bonus): Corroboration vs contradiction diverging bar */}
+      <CorroborationDivergingBar />
 
       {/* Methodology note */}
       <div className="case-card p-5">

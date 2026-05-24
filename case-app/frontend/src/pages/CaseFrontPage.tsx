@@ -5,6 +5,7 @@
 
 import { Link } from 'react-router-dom';
 import { CORPUS_STATS } from '../data/suspects';
+import ClaimDensityTimeline from '../components/ClaimDensityTimeline';
 
 const TIMELINE_EVENTS = [
   {
@@ -124,6 +125,9 @@ export default function CaseFrontPage() {
           </p>
         </div>
       </div>
+
+      {/* Chart 2: Claim density timeline */}
+      <ClaimDensityTimeline />
 
       {/* ── Two columns: timeline + corpus stats ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">

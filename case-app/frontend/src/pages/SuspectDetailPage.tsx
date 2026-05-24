@@ -7,6 +7,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { SUSPECTS, SOURCES } from '../data/suspects';
 import { scoreSuspect, DEFAULT_WEIGHTS, ARCHETYPE_PRIORS, ARCHETYPE_PRIOR_RATIONALE } from '../data/scoring';
+import ProbabilityWaterfall from '../components/ProbabilityWaterfall';
 
 export default function SuspectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -231,6 +232,11 @@ export default function SuspectDetailPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Chart 4: Probability waterfall — visual */}
+      <div className="mt-8">
+        <ProbabilityWaterfall suspect={suspect} result={result} />
       </div>
 
       {/* Log-LR feature contribution waterfall table */}
