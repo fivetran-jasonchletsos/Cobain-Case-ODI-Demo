@@ -7,6 +7,7 @@ const NAV_ITEMS: [string, string][] = [
   ['/scoring', 'Suspect Scoring'],
   ['/hypothesis', "Andrew's Hypothesis"],
   ['/evidence', 'Evidence Explorer'],
+  ['/model', 'Model Card'],
   ['/dbt-wizard', 'dbt-wizard'],
 ];
 

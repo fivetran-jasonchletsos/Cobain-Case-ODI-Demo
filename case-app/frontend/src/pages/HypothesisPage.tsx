@@ -7,7 +7,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SUSPECTS, SOURCES } from '../data/suspects';
-import { scoreSuspect, scoreJointHypothesis, DEFAULT_WEIGHTS } from '../data/scoring';
+import { scoreSuspect, scoreJointHypothesis, DEFAULT_WEIGHTS, ANDREW_DEPENDENCY_RHO } from '../data/scoring';
 
 // Andrew's three originally named suspects
 const ANDREW_CORE_IDS = ['carlson', 'michaelson', 'lanegan'];
@@ -71,7 +71,7 @@ export default function HypothesisPage() {
   const allScores = useMemo(() => {
     const result: Record<string, ReturnType<typeof scoreSuspect>> = {};
     for (const s of SUSPECTS) {
-      result[s.id] = scoreSuspect(s.features, DEFAULT_WEIGHTS, true);
+      result[s.id] = scoreSuspect(s.features, DEFAULT_WEIGHTS, true, s.archetype);
     }
     return result;
   }, []);
@@ -82,10 +82,14 @@ export default function HypothesisPage() {
   const activeJoint = showExtended ? extendedJoint : coreJoint;
   const activeSuspects = showExtended ? EXTENDED_POOL : ANDREW_SUSPECTS;
 
-  const jPct = Math.round(activeJoint.joint_probability * 100);
-  const jLo  = Math.round(activeJoint.joint_ci_lower * 100);
-  const jHi  = Math.round(activeJoint.joint_ci_upper * 100);
+  const uPct = Math.round(activeJoint.union_probability * 100);
+  const uLo  = Math.round(activeJoint.union_ci_lower * 100);
+  const uHi  = Math.round(activeJoint.union_ci_upper * 100);
+  const cPct = Math.round(activeJoint.conjunction_probability * 100);
+  const cLo  = Math.round(activeJoint.conjunction_ci_lower * 100);
+  const cHi  = Math.round(activeJoint.conjunction_ci_upper * 100);
 
+  const jPct = uPct; // alias for legacy color logic
   const jColor = jPct > 45 ? 'var(--caution)' : jPct > 30 ? 'var(--amber-dim)' : 'var(--slate-mist)';
 
   return (
@@ -146,38 +150,64 @@ export default function HypothesisPage() {
         </button>
       </div>
 
-      {/* Joint score */}
-      <div
-        className="case-card p-6 mb-8 border-l-4"
-        style={{ borderLeftColor: jColor }}
-      >
-        <div className="eyebrow mb-2" style={{ fontSize: 10 }}>Joint hypothesis probability</div>
-        <div className="flex items-baseline gap-4 flex-wrap">
-          <span className="font-mono text-5xl font-bold" style={{ color: jColor }}>{jPct}%</span>
-          <div>
-            <div className="font-mono text-sm" style={{ color: 'var(--ink-soft)' }}>
-              95% CI [{jLo}%, {jHi}%]
-            </div>
-            <div className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>
-              P(at least one of the {activeSuspects.length} is involved) — naive Bayes union
+      {/* Joint scores — union and conjunction */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+        {/* Union */}
+        <div className="case-card p-6 border-l-4" style={{ borderLeftColor: jColor }}>
+          <div className="eyebrow mb-2" style={{ fontSize: 10 }}>
+            P(at least one of {activeSuspects.length} involved) — union
+          </div>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <span className="font-mono text-5xl font-bold" style={{ color: jColor }}>{uPct}%</span>
+            <div>
+              <div className="font-mono text-sm" style={{ color: 'var(--ink-soft)' }}>
+                95% CI [{uLo}%, {uHi}%]
+              </div>
+              <div className="font-mono text-xs mt-0.5" style={{ color: 'var(--ink-soft)' }}>
+                pairwise dep. ρ = {ANDREW_DEPENDENCY_RHO}
+              </div>
             </div>
           </div>
+          <div className="mt-3 h-3 rounded-full overflow-hidden" style={{ background: 'var(--paper-deep)', border: '1px solid var(--hairline)', maxWidth: 400 }}>
+            <div className="h-full rounded-full prob-bar-fill" style={{ width: `${uPct}%`, background: jColor }} />
+          </div>
+          <p className="mt-2 text-xs font-mono" style={{ color: 'var(--ink-soft)' }}>
+            P(A ∪ B ∪ C) via inclusion-exclusion with pairwise corr ρ = {ANDREW_DEPENDENCY_RHO}
+          </p>
+          <div className="mt-3 p-3 rounded-sm border text-sm" style={{ background: 'var(--amber-bg)', borderColor: 'var(--amber-dim)', color: 'var(--ink)' }}>
+            <span className="font-semibold">Interpretation: </span>{activeJoint.interpretation}
+          </div>
         </div>
-        <div
-          className="mt-4 h-4 rounded-full overflow-hidden"
-          style={{ background: 'var(--paper-deep)', border: '1px solid var(--hairline)', maxWidth: 500 }}
-        >
-          <div
-            className="h-full rounded-full prob-bar-fill"
-            style={{ width: `${jPct}%`, background: jColor }}
-          />
-        </div>
-        <div
-          className="mt-4 p-4 rounded-sm border text-sm"
-          style={{ background: 'var(--amber-bg)', borderColor: 'var(--amber-dim)', color: 'var(--ink)' }}
-        >
-          <span className="font-semibold">Model interpretation: </span>
-          {activeJoint.interpretation}
+
+        {/* Conjunction */}
+        <div className="case-card p-6 border-l-4" style={{ borderLeftColor: 'var(--slate)' }}>
+          <div className="eyebrow mb-2" style={{ fontSize: 10 }}>
+            P(all {activeSuspects.length} involved) — conjunction
+          </div>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <span className="font-mono text-5xl font-bold" style={{ color: 'var(--slate)' }}>{cPct}%</span>
+            <div>
+              <div className="font-mono text-sm" style={{ color: 'var(--ink-soft)' }}>
+                95% CI [{cLo}%, {cHi}%]
+              </div>
+              <div className="font-mono text-xs mt-0.5" style={{ color: 'var(--ink-soft)' }}>
+                pairwise dep. ρ = {ANDREW_DEPENDENCY_RHO}
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 h-3 rounded-full overflow-hidden" style={{ background: 'var(--paper-deep)', border: '1px solid var(--hairline)', maxWidth: 400 }}>
+            <div className="h-full rounded-full prob-bar-fill" style={{ width: `${cPct}%`, background: 'var(--slate)' }} />
+          </div>
+          <p className="mt-2 text-xs font-mono" style={{ color: 'var(--ink-soft)' }}>
+            P(A ∩ B ∩ C) under shared latent factor model with ρ = {ANDREW_DEPENDENCY_RHO}
+          </p>
+          <div className="mt-3 p-3 rounded-sm border text-sm" style={{ background: 'var(--fog-bg)', borderColor: '#c0ccd8', color: 'var(--ink-muted)' }}>
+            The conjunction is always much lower than any individual probability. Any claim that
+            all three were involved together requires far more evidence than is present in the corpus.
+            ρ = {ANDREW_DEPENDENCY_RHO} means suspects' involvements are positively correlated (mutual
+            proximity to Love), which slightly elevates the conjunction relative to independence.
+            A DS can challenge ρ by adjusting the value in scoring.ts: ANDREW_DEPENDENCY_RHO.
+          </div>
         </div>
       </div>
 
@@ -285,11 +315,17 @@ export default function HypothesisPage() {
       <div className="case-card p-5">
         <div className="eyebrow mb-3" style={{ fontSize: 10 }}>Joint probability methodology</div>
         <p className="text-sm mb-3" style={{ color: 'var(--ink-muted)' }}>
-          The joint probability is computed as P(A ∪ B ∪ ... ∪ N) = 1 − ∏ᵢ P(¬Sᵢ), applying
-          a naive Bayes independence assumption. This assumption is almost certainly violated in
-          reality — if one suspect is involved, the others may be more or less likely to be involved
-          as well. The independence assumption widens the joint CI and should be treated as an upper
-          bound on the joint score.
+          Two separate scores are shown. The union score uses the inclusion-exclusion formula with
+          pairwise correlation ρ = {ANDREW_DEPENDENCY_RHO} between each pair of Andrew's three suspects.
+          ρ reflects their mutual proximity to Courtney Love: if one member of the group is involved
+          via Love's network, the others are somewhat more likely to be involved too. The correlation
+          is explicitly stated so any data scientist can challenge it — change ANDREW_DEPENDENCY_RHO in
+          scoring.ts and all scores update.
+        </p>
+        <p className="text-sm mb-3" style={{ color: 'var(--ink-muted)' }}>
+          The conjunction uses the same pairwise correlation model. It is always substantially lower
+          than the union score; a claim that all three acted together requires far more corroborating
+          evidence than exists in the current corpus.
         </p>
         <p className="text-sm mb-3" style={{ color: 'var(--ink-muted)' }}>
           Note on Chris Michaelson: named by Andrew Chletsos. No matching individual appears in
@@ -311,28 +347,29 @@ export default function HypothesisPage() {
           className="mt-3 font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-sm border"
           style={{ background: 'var(--paper-deep)', borderColor: 'var(--hairline)', color: 'var(--ink-muted)' }}
         >
-          {expanded === 'formula' ? 'Hide' : 'Show'} scoring formula
+          {expanded === 'formula' ? 'Hide' : 'Show'} joint formula
         </button>
         {expanded === 'formula' && (
           <pre
             className="mt-3 p-4 rounded-sm text-[12px] overflow-x-auto"
             style={{ background: '#0a1020', color: '#d0e0f0', fontFamily: '"JetBrains Mono", monospace', lineHeight: 1.6 }}
           >
-{`-- Weighted logit for each suspect s:
-logit(s) =
-  w_mention   * (f_mention   - 0.5) * 2
-  + w_motive  * (f_motive    - 0.5) * 2
-  + w_means   * (f_means     - 0.5) * 2
-  + w_opp     * (f_opp       - 0.5) * 2
-  + w_corr    * (f_corr      - 0.5) * 2
-  + w_time    * (f_time      - 0.5) * 2
-  + w_invest  * (f_invest    - 0.5) * 2
-  - w_contra  * f_contra * 2
+{`-- Bayesian log-LR individual scores:
+--   logit(P_i) = logit(prior_i) + Σ log_LR(features)
+--   P_i = sigmoid(logit(P_i))
 
-P(s) = sigmoid(logit(s)) = 1 / (1 + exp(-logit(s)))
+-- Union with pairwise correlation ρ = ${ANDREW_DEPENDENCY_RHO}:
+--   P(A,B) = P(A)·P(B) + ρ·√(P(A)(1-P(A))·P(B)(1-P(B)))
+--   P(A,B,C) = P(A)·P(B)·P(C) + ρ·√(P(A)(1-P(A))·P(B)(1-P(B))·P(C)(1-P(C)))
+--   P(A ∪ B ∪ C) = P(A)+P(B)+P(C) - P(A,B)-P(A,C)-P(B,C) + P(A,B,C)
 
--- Joint hypothesis (union, independence):
-P(joint) = 1 - prod_i(1 - P(suspect_i))  -- across the active pool`}
+-- Conjunction:
+--   P(A ∩ B ∩ C) = P(A,B,C)  [from above]
+
+-- Dependency note:
+--   ρ = ${ANDREW_DEPENDENCY_RHO} reflects positive correlation among Andrew's three suspects.
+--   Independence (ρ=0) gives lower conjunction; stronger correlation gives higher.
+--   This value is explicitly configurable: ANDREW_DEPENDENCY_RHO in scoring.ts.`}
           </pre>
         )}
       </div>

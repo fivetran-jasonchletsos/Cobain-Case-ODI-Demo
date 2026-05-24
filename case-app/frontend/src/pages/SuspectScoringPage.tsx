@@ -11,6 +11,8 @@ import { SUSPECTS } from '../data/suspects';
 import {
   scoreSuspect,
   DEFAULT_WEIGHTS,
+  ARCHETYPE_PRIORS,
+  ARCHETYPE_PRIOR_RATIONALE,
   type FeatureWeights,
   type ScoreResult,
 } from '../data/scoring';
@@ -89,12 +91,13 @@ function ProbBar({ probability, ciLower, ciUpper, grounded, accent }: {
   );
 }
 
-function FeatureRow({ label, value, contribution }: {
-  label: string; value: number; contribution: number;
+// Renders a feature log-LR contribution row.
+// log_LR is the raw log-likelihood-ratio contribution; barWidth is normalized for display.
+function FeatureRow({ label, log_LR, barWidth }: {
+  label: string; log_LR: number; barWidth: number;
 }) {
-  const pct = Math.round(value * 100);
-  const contrib = Math.round(Math.abs(contribution) * 100);
-  const isNegative = contribution < 0;
+  const isNegative = log_LR < 0;
+  const displayPct = Math.min(100, Math.round(Math.abs(barWidth) * 100));
   return (
     <div className="flex items-center gap-2 py-0.5">
       <div className="text-[11px] w-32 shrink-0 font-mono" style={{ color: 'var(--ink-muted)' }}>{label}</div>
@@ -105,14 +108,14 @@ function FeatureRow({ label, value, contribution }: {
         <div
           className="h-full rounded-full"
           style={{
-            width: `${pct}%`,
+            width: `${displayPct}%`,
             background: isNegative ? 'var(--alert)' : 'var(--amber)',
             opacity: 0.8,
           }}
         />
       </div>
-      <div className="font-mono text-[10px] w-8 text-right" style={{ color: isNegative ? 'var(--alert)' : 'var(--ink-muted)' }}>
-        {isNegative ? `-${contrib}` : `+${contrib}`}
+      <div className="font-mono text-[10px] w-14 text-right" style={{ color: isNegative ? 'var(--alert)' : 'var(--ink-muted)' }}>
+        {isNegative ? '' : '+'}{log_LR.toFixed(2)} LR
       </div>
     </div>
   );
@@ -190,14 +193,26 @@ function SuspectCard({
       </div>
 
       <div className="px-5 py-4">
+        {/* Prior badge */}
+        {grounded && (
+          <div className="mb-2 flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded-sm border" style={{ background: style.badgeBg, borderColor: `${style.accent}44`, color: style.badgeText }}>
+              prior = {(result.prior * 100).toFixed(1)}%
+            </span>
+            <span className="font-mono text-[10px]" style={{ color: 'var(--ink-soft)' }}>
+              {style.labelText}
+            </span>
+          </div>
+        )}
+
         {isBaseline && (
           <div
             className="mb-3 p-2 rounded-sm border text-xs font-mono"
             style={{ background: `${style.accent}0a`, borderColor: `${style.accent}33`, color: style.accent }}
           >
-            Null hypothesis — official ruling. The model scores this against the same corpus.
-            A high score here means the data supports the suicide ruling; a lower score
-            means the 2026 forensic claims and alternative sources weigh against it.
+            P(official ruling holds | corpus) — null hypothesis. Only contradictions (Burnett &amp;
+            Wilkins 2026, Grant archive) update this from the 0.94 prior. A score below 90%
+            means the corpus challenges carry measurable weight.
           </div>
         )}
 
@@ -222,14 +237,15 @@ function SuspectCard({
 
         {grounded && (
           <div className="mt-4">
-            <div className="eyebrow mb-2" style={{ fontSize: 9 }}>Feature contributions</div>
-            <FeatureRow label="motive"      value={suspect.features.motive_strength_score}   contribution={result.feature_contributions.motive ?? 0} />
-            <FeatureRow label="means"       value={suspect.features.means_score}             contribution={result.feature_contributions.means ?? 0} />
-            <FeatureRow label="opportunity" value={suspect.features.opportunity_score}       contribution={result.feature_contributions.opportunity ?? 0} />
-            <FeatureRow label="corroboration" value={suspect.features.corroboration_density} contribution={result.feature_contributions.corroboration ?? 0} />
-            <FeatureRow label="timeline"    value={suspect.features.timeline_proximity}      contribution={result.feature_contributions.timeline ?? 0} />
-            <FeatureRow label="investigator" value={Math.min(1, suspect.features.named_by_investigator_count / 20)} contribution={result.feature_contributions.investigator ?? 0} />
-            <FeatureRow label="contradiction" value={Math.min(1, suspect.features.contradiction_count / 25)} contribution={result.feature_contributions.contradiction_penalty ?? 0} />
+            <div className="eyebrow mb-2" style={{ fontSize: 9 }}>Log-LR contributions (logit prior {result.logit_prior.toFixed(2)} + {result.sum_log_LR.toFixed(2)} = {result.logit_posterior.toFixed(2)})</div>
+            {result.feature_lr_detail.map((d) => (
+              <FeatureRow
+                key={d.feature}
+                label={d.feature}
+                log_LR={d.log_LR_contribution}
+                barWidth={Math.abs(d.log_LR_contribution) / 3}
+              />
+            ))}
           </div>
         )}
 
@@ -277,7 +293,7 @@ export default function SuspectScoringPage() {
   const scores = useMemo(() => {
     return SUSPECTS.map((s) => ({
       suspect: s,
-      result: scoreSuspect(s.features, weights, grounded),
+      result: scoreSuspect(s.features, weights, grounded, s.archetype),
     }));
   }, [weights, grounded]);
 
@@ -300,10 +316,10 @@ export default function SuspectScoringPage() {
         Probability scoring model
       </h1>
       <p className="text-lg max-w-3xl mb-6" style={{ color: 'var(--ink-muted)' }}>
-        Weighted logistic combination of corpus-derived features across 11 suspects and archetypes.
+        Bayesian log-likelihood-ratio model across 11 suspects and archetypes. Each score is a
+        posterior probability: logit(prior) + sum of per-feature log-LRs, passed through sigmoid.
         Output is a model estimate — not a forensic determination. The official ruling is suicide.
-        The Kurt Cobain baseline card is the null hypothesis; all other suspects are scored against
-        the same corpus. Toggle Grounded mode off to see what the model looks like without Fivetran.
+        Toggle Grounded mode off to see what the model looks like without Fivetran.
       </p>
 
       {/* ── Grounded / Ungrounded toggle ── */}
@@ -435,19 +451,123 @@ export default function SuspectScoringPage() {
         ))}
       </div>
 
-      {/* ── Model disclaimer ── */}
-      <div
-        className="mt-8 p-4 rounded-sm border text-sm"
-        style={{ background: 'var(--fog-bg)', borderColor: '#c0ccd8', color: 'var(--ink-muted)' }}
-      >
-        <span className="font-mono font-semibold" style={{ color: 'var(--slate)' }}>Model note:</span>{' '}
-        Probability outputs are weighted logistic combinations of corpus-derived feature scores. They
-        represent the model's estimate given the available published evidence, not forensic findings.
-        The official ruling is suicide (Seattle PD Case #94-108620, 1994; King County ME). No claim
-        here constitutes a factual allegation. All evidence cited is from publicly available sources.
-        Burnett &amp; Wilkins (2026) claims are labeled as peer-reviewed; the official ruling has not
-        been amended as of February 2026.
+      {/* ── Model Card ── */}
+      <ModelCard />
+    </div>
+  );
+}
+
+function ModelCard() {
+  const [showBootstrap, setShowBootstrap] = useState(false);
+  const [showPriors, setShowPriors] = useState(false);
+  const [showFormula, setShowFormula] = useState(false);
+
+  const archetypes = Object.entries(ARCHETYPE_PRIORS) as [keyof typeof ARCHETYPE_PRIORS, number][];
+
+  return (
+    <div className="mt-8 case-card p-5">
+      <div className="eyebrow mb-3" style={{ fontSize: 10 }}>Model card — scoring methodology and calibration</div>
+
+      {/* Calibration disclosure */}
+      <div className="mb-4 p-4 rounded-sm border text-sm" style={{ background: 'var(--fog-bg)', borderColor: '#c0ccd8', color: 'var(--ink-muted)' }}>
+        <p className="mb-2"><span className="font-mono font-semibold" style={{ color: 'var(--slate)' }}>What these scores are:</span> Bayesian posterior probabilities derived from archetype priors updated by corpus-derived log-likelihood ratios. They are evidence-weight scores normalized to [0,1].</p>
+        <p className="mb-2"><span className="font-mono font-semibold" style={{ color: 'var(--slate)' }}>What these scores are not:</span> Verdicts. Forensic determinations. Empirical frequencies. Accusations. Higher score means more evidence weight in the corpus, not more likely guilty.</p>
+        <p className="mb-2"><span className="font-mono font-semibold" style={{ color: 'var(--slate)' }}>Cobain baseline:</span> Scored as P(official ruling holds | corpus). Only contradictions (Burnett &amp; Wilkins 2026, Grant archive) update the prior. A score of 82% means the 2026 forensic challenges are measurable but do not overturn the prior weight of the official ruling.</p>
+        <p className="mb-2"><span className="font-mono font-semibold" style={{ color: 'var(--slate)' }}>No test set:</span> The model has no out-of-sample validation. Scores are descriptive, not predictive. Rank order is more stable than absolute probabilities.</p>
+        <p><span className="font-mono font-semibold" style={{ color: 'var(--slate)' }}>Known biases:</span> Corpus is dominated by conspiracy literature (Grant archive, documentaries, Halperin). English-language only. No audio NLP. No forensic lab data.</p>
       </div>
+
+      {/* Priors accordion */}
+      <button type="button" onClick={() => setShowPriors((s) => !s)}
+        className="mb-2 font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-sm border"
+        style={{ background: 'var(--paper-deep)', borderColor: 'var(--hairline)', color: 'var(--ink-muted)' }}>
+        {showPriors ? 'Hide' : 'Show'} archetype priors
+      </button>
+      {showPriors && (
+        <div className="mb-4 overflow-x-auto">
+          <table className="data-table text-sm">
+            <thead>
+              <tr>
+                <th>Archetype</th>
+                <th className="num">Prior</th>
+                <th>Rationale</th>
+              </tr>
+            </thead>
+            <tbody>
+              {archetypes.map(([arch, prior]) => (
+                <tr key={arch}>
+                  <td className="font-mono">{arch}</td>
+                  <td className="num font-mono">{(prior * 100).toFixed(1)}%</td>
+                  <td className="text-xs" style={{ color: 'var(--ink-muted)' }}>{ARCHETYPE_PRIOR_RATIONALE[arch]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Formula accordion */}
+      <button type="button" onClick={() => setShowFormula((s) => !s)}
+        className="mb-2 font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-sm border"
+        style={{ background: 'var(--paper-deep)', borderColor: 'var(--hairline)', color: 'var(--ink-muted)' }}>
+        {showFormula ? 'Hide' : 'Show'} scoring formula
+      </button>
+      {showFormula && (
+        <pre className="mb-4 p-4 rounded-sm text-[12px] overflow-x-auto"
+          style={{ background: '#0a1020', color: '#d0e0f0', fontFamily: '"JetBrains Mono", monospace', lineHeight: 1.6 }}>
+{`-- Bayesian log-LR scoring formula
+--
+-- 1. Archetype prior: p0 ∈ {0.001, 0.005, 0.02, 0.04, 0.94}
+-- 2. logit(prior) = log(p0 / (1 - p0))
+--
+-- 3. For each feature f with normalized value v ∈ [0,1]:
+--      log_LR(f) = scale_f * (v - v0_f)
+--    where v0_f is the expected value under the not-involved hypothesis.
+--    Witness/commentator: log_LR capped at ±0.5 per feature.
+--
+-- 4. For baseline (Cobain) archetype:
+--      Only corpus_challenges (contradictions) update the prior.
+--      Supporting features are already encoded in the 0.94 prior.
+--
+-- 5. logit(posterior) = logit(prior) + Σ log_LR(features)
+-- 6. P_posterior = sigmoid(logit(posterior)) = 1 / (1 + exp(-logit(posterior)))
+--
+-- Feature scales (log-LR per unit deviation from v0):
+--   motive:        scale=1.8, v0=0.15
+--   means:         scale=1.8, v0=0.15
+--   opportunity:   scale=1.8, v0=0.15
+--   corroboration: scale=1.5, v0=0.15
+--   timeline:      scale=1.2, v0=0.15
+--   investigator:  scale=2.0, v0=0.05  (normalized to 20 max)
+--   contradiction: scale=1.5, v0=0.0   (always negative; normalized to 15 max)
+--   mention_count: scale=0.8, v0=0.05  (normalized to 5000 max)
+--   baseline only: corpus_challenges scale=3.0 on contradiction_count/15`}
+        </pre>
+      )}
+
+      {/* Bootstrap CI accordion */}
+      <button type="button" onClick={() => setShowBootstrap((s) => !s)}
+        className="mb-2 font-mono text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-sm border"
+        style={{ background: 'var(--paper-deep)', borderColor: 'var(--hairline)', color: 'var(--ink-muted)' }}>
+        {showBootstrap ? 'Hide' : 'Show'} how we computed the confidence intervals
+      </button>
+      {showBootstrap && (
+        <div className="p-4 rounded-sm border text-sm" style={{ background: 'var(--fog-bg)', borderColor: '#c0ccd8', color: 'var(--ink-muted)' }}>
+          <p className="mb-2 font-mono font-semibold" style={{ color: 'var(--slate)' }}>Bootstrap procedure (n=500)</p>
+          <ol className="list-decimal list-inside space-y-1 text-sm">
+            <li>From each suspect's claim set, count corroborating claims (c) and contradicting claims (k).</li>
+            <li>Treat the corroboration density as a Bayesian posterior: Beta(α = c+1, β = k+1).</li>
+            <li>Draw 500 samples from this Beta distribution. Each sample represents a plausible corroboration-density value given the observed claim counts.</li>
+            <li>For each sample, scale the corroboration log-LR proportionally and recompute the full score.</li>
+            <li>Report the 2.5th and 97.5th percentiles of the 500 recomputed probabilities as the 95% CI.</li>
+          </ol>
+          <p className="mt-2 text-xs" style={{ color: 'var(--slate)' }}>
+            Note: CI width reflects uncertainty in corroboration density, not all model uncertainty.
+            Suspects with high claim counts have tighter CIs; suspects with few claims have wider CIs.
+            The Beta sampler uses the Marsaglia-Tsang (2000) gamma algorithm.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

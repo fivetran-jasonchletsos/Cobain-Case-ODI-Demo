@@ -6,7 +6,7 @@
 
 import { useParams, Link } from 'react-router-dom';
 import { SUSPECTS, SOURCES } from '../data/suspects';
-import { scoreSuspect, DEFAULT_WEIGHTS } from '../data/scoring';
+import { scoreSuspect, DEFAULT_WEIGHTS, ARCHETYPE_PRIORS, ARCHETYPE_PRIOR_RATIONALE } from '../data/scoring';
 
 export default function SuspectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,7 +24,7 @@ export default function SuspectDetailPage() {
     );
   }
 
-  const result = scoreSuspect(suspect.features, DEFAULT_WEIGHTS, true);
+  const result = scoreSuspect(suspect.features, DEFAULT_WEIGHTS, true, suspect.archetype);
 
   const supporting = suspect.claims.filter((c) => c.direction === 'supporting');
   const contradicting = suspect.claims.filter((c) => c.direction === 'contradicting');
@@ -68,13 +68,31 @@ export default function SuspectDetailPage() {
       {/* Probability summary */}
       <div
         className="case-card p-5 mb-8 border-l-4"
-        style={{ borderLeftColor: 'var(--amber)' }}
+        style={{ borderLeftColor: suspect.archetype === 'baseline' ? '#4a90a4' : 'var(--amber)' }}
       >
-        <div className="eyebrow mb-1" style={{ fontSize: 10 }}>Grounded model score</div>
+        <div className="eyebrow mb-1" style={{ fontSize: 10 }}>
+          {suspect.archetype === 'baseline'
+            ? 'P(official ruling holds | corpus) — Bayesian posterior'
+            : 'Grounded model score — Bayesian posterior'}
+        </div>
         <div className="flex items-baseline gap-3 flex-wrap">
-          <span className="font-mono text-4xl font-bold" style={{ color: 'var(--amber-dim)' }}>{pPct}%</span>
+          <span
+            className="font-mono text-4xl font-bold"
+            style={{ color: suspect.archetype === 'baseline' ? '#4a90a4' : 'var(--amber-dim)' }}
+          >
+            {pPct}%
+          </span>
           <span className="font-mono text-sm" style={{ color: 'var(--ink-soft)' }}>
             95% CI [{loPct}%, {hiPct}%]
+          </span>
+        </div>
+        <div className="flex items-center gap-3 mt-2 flex-wrap">
+          <span className="font-mono text-[11px] px-1.5 py-0.5 rounded-sm border"
+            style={{ background: 'rgba(74,144,164,0.07)', borderColor: 'rgba(74,144,164,0.3)', color: 'var(--ink-soft)' }}>
+            prior = {(ARCHETYPE_PRIORS[suspect.archetype] * 100).toFixed(1)}%
+          </span>
+          <span className="font-mono text-[11px]" style={{ color: 'var(--ink-soft)' }}>
+            logit(prior) {result.logit_prior.toFixed(2)} + {result.sum_log_LR.toFixed(2)} = {result.logit_posterior.toFixed(2)}
           </span>
         </div>
         <div
@@ -83,10 +101,13 @@ export default function SuspectDetailPage() {
         >
           <div
             className="h-full rounded-full prob-bar-fill"
-            style={{ width: `${pPct}%`, background: 'var(--amber)' }}
+            style={{ width: `${pPct}%`, background: suspect.archetype === 'baseline' ? '#4a90a4' : 'var(--amber)' }}
           />
         </div>
-        <p className="text-sm mt-2" style={{ color: 'var(--ink-muted)' }}>
+        <p className="text-xs font-mono mt-2" style={{ color: 'var(--ink-soft)' }}>
+          {ARCHETYPE_PRIOR_RATIONALE[suspect.archetype]}
+        </p>
+        <p className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>
           Model estimate only. All output represents corpus-derived scoring, not forensic determination.
           Official ruling: suicide.
         </p>
@@ -212,33 +233,72 @@ export default function SuspectDetailPage() {
         </div>
       </div>
 
-      {/* Feature scores table */}
+      {/* Log-LR feature contribution waterfall table */}
       <div className="mt-8 case-card p-5">
-        <div className="eyebrow mb-3">Raw feature scores</div>
-        <table className="data-table">
+        <div className="eyebrow mb-1">Feature log-LR contributions — waterfall</div>
+        <p className="text-xs font-mono mb-3" style={{ color: 'var(--ink-soft)' }}>
+          Each row shows how much a feature shifts the log-odds. Positive = evidence toward involvement; negative = evidence away. Sum = {result.sum_log_LR.toFixed(3)}.
+        </p>
+        <table className="data-table text-sm">
           <thead>
             <tr>
               <th>Feature</th>
-              <th className="num">Value</th>
-              <th className="num">Normalized</th>
+              <th className="num">Normalized value</th>
+              <th className="num">log-LR contribution</th>
+              <th className="num">Citation count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {result.feature_lr_detail.map((d) => (
+              <tr key={d.feature}>
+                <td className="font-mono">{d.feature}</td>
+                <td className="num font-mono">{d.normalized_value.toFixed(3)}</td>
+                <td
+                  className="num font-mono font-semibold"
+                  style={{ color: d.log_LR_contribution < 0 ? 'var(--alert)' : d.log_LR_contribution > 0.1 ? 'var(--caution)' : 'var(--ink-muted)' }}
+                >
+                  {d.log_LR_contribution >= 0 ? '+' : ''}{d.log_LR_contribution.toFixed(3)}
+                </td>
+                <td className="num">{d.citation_count > 0 ? d.citation_count.toLocaleString() : '—'}</td>
+              </tr>
+            ))}
+            <tr style={{ borderTop: '2px solid var(--hairline)', fontWeight: 700 }}>
+              <td className="font-mono" colSpan={2}>Total Σ log-LR</td>
+              <td
+                className="num font-mono font-bold"
+                style={{ color: result.sum_log_LR < 0 ? 'var(--alert)' : 'var(--caution)' }}
+              >
+                {result.sum_log_LR >= 0 ? '+' : ''}{result.sum_log_LR.toFixed(3)}
+              </td>
+              <td className="num">—</td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* Raw feature scores below */}
+        <div className="eyebrow mt-5 mb-2" style={{ fontSize: 9 }}>Raw input feature values</div>
+        <table className="data-table text-sm">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th className="num">Raw value</th>
             </tr>
           </thead>
           <tbody>
             {[
-              { label: 'Total mention count', raw: suspect.features.mention_count_total.toLocaleString(), norm: (suspect.features.mention_count_total / 3000).toFixed(3) },
-              { label: 'Sworn-testimony mentions', raw: suspect.features.mention_count_under_oath, norm: (suspect.features.mention_count_under_oath / 10).toFixed(3) },
-              { label: 'Motive strength score', raw: suspect.features.motive_strength_score.toFixed(2), norm: suspect.features.motive_strength_score.toFixed(3) },
-              { label: 'Means score', raw: suspect.features.means_score.toFixed(2), norm: suspect.features.means_score.toFixed(3) },
-              { label: 'Opportunity score', raw: suspect.features.opportunity_score.toFixed(2), norm: suspect.features.opportunity_score.toFixed(3) },
-              { label: 'Corroboration density', raw: suspect.features.corroboration_density.toFixed(2), norm: suspect.features.corroboration_density.toFixed(3) },
-              { label: 'Contradiction count', raw: suspect.features.contradiction_count, norm: (suspect.features.contradiction_count / 25).toFixed(3) },
-              { label: 'Timeline proximity', raw: suspect.features.timeline_proximity.toFixed(2), norm: suspect.features.timeline_proximity.toFixed(3) },
-              { label: 'Named by investigator count', raw: suspect.features.named_by_investigator_count, norm: (suspect.features.named_by_investigator_count / 20).toFixed(3) },
+              { label: 'Total mention count',        val: suspect.features.mention_count_total.toLocaleString() },
+              { label: 'Sworn-testimony mentions',   val: suspect.features.mention_count_under_oath },
+              { label: 'Motive strength score',      val: suspect.features.motive_strength_score.toFixed(2) },
+              { label: 'Means score',                val: suspect.features.means_score.toFixed(2) },
+              { label: 'Opportunity score',          val: suspect.features.opportunity_score.toFixed(2) },
+              { label: 'Corroboration density',      val: suspect.features.corroboration_density.toFixed(2) },
+              { label: 'Contradiction count',        val: suspect.features.contradiction_count },
+              { label: 'Timeline proximity',         val: suspect.features.timeline_proximity.toFixed(2) },
+              { label: 'Named by investigator count',val: suspect.features.named_by_investigator_count },
             ].map((row) => (
               <tr key={row.label}>
                 <td>{row.label}</td>
-                <td className="num">{row.raw}</td>
-                <td className="num">{row.norm}</td>
+                <td className="num font-mono">{row.val}</td>
               </tr>
             ))}
           </tbody>

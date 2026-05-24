@@ -8,6 +8,7 @@ import HypothesisPage from './pages/HypothesisPage';
 import EvidenceExplorerPage from './pages/EvidenceExplorerPage';
 import OdiDbtWizardPage from './pages/OdiDbtWizardPage';
 import WizardLivePage from './pages/WizardLivePage';
+import ModelCardPage from './pages/ModelCardPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/suspect/:id" element={<SuspectDetailPage />} />
           <Route path="/hypothesis" element={<HypothesisPage />} />
           <Route path="/evidence" element={<EvidenceExplorerPage />} />
+          <Route path="/model" element={<ModelCardPage />} />
           <Route path="/dbt-wizard" element={<OdiDbtWizardPage />} />
           <Route path="/wizard-live" element={<WizardLivePage />} />
           <Route path="*" element={<NotFoundPage />} />
