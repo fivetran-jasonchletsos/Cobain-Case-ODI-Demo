@@ -1,0 +1,13 @@
+{
+  "model": "gold.fct_grant_elduce_cross_reference",
+  "rows_written": 243,
+  "tests_passed": 8,
+  "tests_warned": 1,
+  "null_anchors": 41,
+  "iceberg_path": "s3://cobain-case-odi/gold/fct_grant_elduce_cross_reference/",
+  "build_seconds": 88,
+  "named_persons_covered": ["courtney love", "dylan carlson", "cali dewitt", "mark lanegan", "kurt cobain"],
+  "source_types": ["grant_investigation", "elduce_interview_transcript"],
+  "overlap_claims_found": 7,
+  "overlap_summary": "7 claims reference the same named person and overlap within a 14-day window of a resolved timeline anchor. All 7 are allegations in named published sources. No claim constitutes forensic evidence."
+}

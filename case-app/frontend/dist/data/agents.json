@@ -1,0 +1,60 @@
+{
+  "agents": [
+    {
+      "id": "explorer",
+      "name": "Explorer Agent",
+      "code": "EXP",
+      "color": "#7ab0e0",
+      "role": "Scans the corpus for models and raw source tables relevant to the new investigative question. Starts from the analytic gap, not the file tree.",
+      "tools": ["status", "search", "lineage"],
+      "sample_input": "Find the staging and intermediate models related to Tom Grant's investigation notes, El Duce interview transcripts, and timeline anchor events.",
+      "responsibilities": [
+        "Runs status to confirm the dbt project parses cleanly",
+        "Runs search against the corpus vocabulary: grant, el_duce, interview, timeline, witness",
+        "Hands the candidate model list to Summary Agent"
+      ]
+    },
+    {
+      "id": "summary",
+      "name": "Summary Agent",
+      "code": "SUM",
+      "color": "#c8a860",
+      "role": "Explains the grain of each upstream model, the join keys, and where the analytic gap is. Decides whether the corpus can answer the new question at all before any SQL is written.",
+      "tools": ["describe", "lineage"],
+      "sample_input": "For those models, show the grain, key columns, and how they join. Where does the gap sit between what exists and the cross-reference Andrew is asking for?",
+      "responsibilities": [
+        "Runs describe on each candidate to confirm grain and column coverage",
+        "Runs lineage to validate the join path across source types",
+        "Names the new mart grain the gold table must land on"
+      ]
+    },
+    {
+      "id": "worker",
+      "name": "Worker Agent",
+      "code": "WRK",
+      "color": "#c070a0",
+      "role": "Writes the SQL file. Authors the new gold.fct_grant_elduce_cross_reference mart with the right CTE structure, source joins, and final attribution select.",
+      "tools": ["warehouse", "dbt_show", "file_edits", "model_gen"],
+      "sample_input": "Create gold.fct_grant_elduce_cross_reference as an incremental materialization. Validate the proposed grain with a dbt_show slice before committing.",
+      "responsibilities": [
+        "Runs dbt_show on a targeted slice to validate the join grain",
+        "Writes the SQL with header comments, CTEs, source joins, and claim attribution",
+        "Materializes the model to the gold schema on Iceberg"
+      ]
+    },
+    {
+      "id": "verification",
+      "name": "Verification Agent",
+      "code": "VER",
+      "color": "#5aaa80",
+      "role": "Adds dbt tests, schema contract, and source-type metadata. Validates against existing lineage and confirms the new mart surfaces in the Evidence Explorer immediately.",
+      "tools": ["describe", "lineage", "dbt_show"],
+      "sample_input": "Add tests covering uniqueness on claim_id and not-null on source_id and attributed_to. Confirm lineage updates so the Evidence Explorer picks up the new model.",
+      "responsibilities": [
+        "Writes the YAML companion with description, tests, and schema contract",
+        "Confirms uniqueness and not-null tests pass against the materialized slice",
+        "Updates lineage so the Evidence Explorer and Andrew's Hypothesis page surface the new data"
+      ]
+    }
+  ]
+}
