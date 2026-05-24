@@ -66,7 +66,7 @@ export default function HypothesisPage() {
     };
   }, []);
 
-  const joint = useMemo(() => scoreJointHypothesis(scores), [scores]);
+  const joint = useMemo(() => scoreJointHypothesis(scores, ['carlson', 'michaelson', 'lanegan']), [scores]);
 
   const jPct = Math.round(joint.joint_probability * 100);
   const jLo  = Math.round(joint.joint_ci_lower * 100);

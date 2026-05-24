@@ -36,7 +36,7 @@ export const DEFAULT_WEIGHTS: FeatureWeights = {
 
 // Maximum values used to normalize raw feature counts to [0,1]
 const NORM = {
-  mention_count_total: 3000,
+  mention_count_total: 10000,
   mention_count_under_oath: 10,
   named_by_investigator_count: 20,
   contradiction_count: 25,
@@ -136,25 +136,28 @@ export function scoreSuspect(
   };
 }
 
-// Joint probability for Andrew's three-suspect hypothesis
-// P(joint) = P(any of the three are involved) under a naive Bayes independence assumption
-// displayed alongside corroborating/contradicting joint evidence
+// Joint probability for Andrew's hypothesis across his named suspects
+// P(joint) = P(any of the named suspects are involved) under a naive Bayes independence assumption
+// Andrew's core named suspects: carlson, michaelson, lanegan
+// Extended pool includes dewitt (named by Grant and closely connected to Andrew's theory)
 export function scoreJointHypothesis(
-  scores: { carlson: ScoreResult; michaelson: ScoreResult; lanegan: ScoreResult }
+  scores: Record<string, ScoreResult>,
+  suspectIds: string[]
 ): {
   joint_probability: number;
   joint_ci_lower: number;
   joint_ci_upper: number;
   interpretation: string;
 } {
-  const { carlson, michaelson, lanegan } = scores;
+  const probs = suspectIds.map((id) => scores[id]?.probability ?? 0);
+  const lowers = suspectIds.map((id) => scores[id]?.ci_lower ?? 0);
+  const uppers = suspectIds.map((id) => scores[id]?.ci_upper ?? 0);
 
   // Joint probability of at least one being involved (union, independence assumed)
   // P(A or B or C) = 1 - P(not A) * P(not B) * P(not C)
-  const joint = 1 - (1 - carlson.probability) * (1 - michaelson.probability) * (1 - lanegan.probability);
-
-  const joint_lower = 1 - (1 - carlson.ci_lower) * (1 - michaelson.ci_lower) * (1 - lanegan.ci_lower);
-  const joint_upper = 1 - (1 - carlson.ci_upper) * (1 - michaelson.ci_upper) * (1 - lanegan.ci_upper);
+  const joint = 1 - probs.reduce((acc, p) => acc * (1 - p), 1);
+  const joint_lower = 1 - lowers.reduce((acc, p) => acc * (1 - p), 1);
+  const joint_upper = 1 - uppers.reduce((acc, p) => acc * (1 - p), 1);
 
   let interpretation: string;
   if (joint < 0.25) {

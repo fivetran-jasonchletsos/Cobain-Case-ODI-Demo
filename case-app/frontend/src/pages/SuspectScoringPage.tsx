@@ -1,7 +1,8 @@
 /*
  * Page 3: Suspect Scoring
- * Four suspect cards with probability scores. Grounded/Ungrounded toggle.
+ * 11 suspect cards with probability scores. Grounded/Ungrounded toggle.
  * Sensitivity sliders for feature weights.
+ * Distinct visual treatment for the baseline (Kurt Cobain / official ruling).
  */
 
 import { useState, useMemo } from 'react';
@@ -25,23 +26,27 @@ const WEIGHT_LABELS: { key: keyof FeatureWeights; label: string; desc: string }[
   { key: 'contradiction_penalty', label: 'Contradiction penalty',       desc: 'Published contradictions, alibis, counter-evidence' },
 ];
 
-function ProbBar({ probability, ciLower, ciUpper, grounded }: {
-  probability: number; ciLower: number; ciUpper: number; grounded: boolean;
+// Archetype → visual accent
+const ARCHETYPE_STYLE: Record<string, { accent: string; badgeBg: string; badgeText: string; labelText: string }> = {
+  baseline:    { accent: '#4a90a4', badgeBg: 'rgba(74,144,164,0.10)', badgeText: '#4a90a4', labelText: 'Official ruling' },
+  primary:     { accent: 'var(--caution)', badgeBg: 'var(--caution-bg)', badgeText: 'var(--caution)', labelText: 'Primary suspect' },
+  secondary:   { accent: 'var(--amber)', badgeBg: 'var(--amber-bg)', badgeText: 'var(--amber-dim)', labelText: 'Named suspect' },
+  witness:     { accent: '#7ab0e0', badgeBg: 'rgba(122,176,224,0.10)', badgeText: '#4a78a0', labelText: 'Witness / informant' },
+  commentator: { accent: 'var(--slate)', badgeBg: 'rgba(108,120,140,0.08)', badgeText: 'var(--slate)', labelText: 'Commentator' },
+  unknown:     { accent: '#a07850', badgeBg: 'rgba(160,120,80,0.10)', badgeText: '#a07850', labelText: 'Unknown assailant' },
+};
+
+function ProbBar({ probability, ciLower, ciUpper, grounded, accent }: {
+  probability: number; ciLower: number; ciUpper: number; grounded: boolean; accent: string;
 }) {
   const pPct = Math.round(probability * 100);
   const loPct = Math.round(ciLower * 100);
   const hiPct = Math.round(ciUpper * 100);
 
-  const barColor = probability > 0.45
-    ? 'var(--caution)'
-    : probability > 0.30
-    ? 'var(--amber)'
-    : 'var(--fog)';
-
   return (
     <div className="mt-2">
       <div className="flex items-baseline gap-2 mb-1">
-        <span className="font-mono text-2xl font-bold" style={{ color: barColor }}>
+        <span className="font-mono text-2xl font-bold" style={{ color: accent }}>
           {pPct}%
         </span>
         <span className="font-mono text-[11px]" style={{ color: 'var(--ink-soft)' }}>
@@ -57,7 +62,7 @@ function ProbBar({ probability, ciLower, ciUpper, grounded }: {
       >
         <div
           className="absolute top-0 left-0 h-full rounded-full prob-bar-fill"
-          style={{ width: `${pPct}%`, background: barColor }}
+          style={{ width: `${pPct}%`, background: accent }}
         />
         {/* CI whiskers */}
         {grounded && (
@@ -121,19 +126,28 @@ function SuspectCard({
   grounded: boolean;
   rank: number;
 }) {
+  const style = ARCHETYPE_STYLE[suspect.archetype] ?? ARCHETYPE_STYLE['secondary'];
+  const isBaseline = suspect.archetype === 'baseline';
+
   return (
-    <div className="case-card overflow-hidden">
+    <div
+      className="case-card overflow-hidden"
+      style={isBaseline ? { border: `1.5px solid ${style.accent}`, boxShadow: `0 0 0 1px ${style.accent}22` } : {}}
+    >
       <div
         className="px-5 py-4 border-b flex items-start gap-3"
-        style={{ borderColor: 'var(--hairline)', background: 'var(--paper-deep)' }}
+        style={{
+          borderColor: 'var(--hairline)',
+          background: isBaseline ? `${style.accent}0d` : 'var(--paper-deep)',
+        }}
       >
         {/* Initials badge */}
         <div
           className="h-12 w-12 rounded-sm flex items-center justify-center font-mono font-bold text-lg shrink-0"
           style={{
             background: 'var(--slate-deep)',
-            color: 'var(--amber)',
-            border: '1.5px solid var(--slate-soft)',
+            color: style.accent,
+            border: `1.5px solid ${style.accent}55`,
           }}
         >
           {suspect.initials}
@@ -143,15 +157,31 @@ function SuspectCard({
             <span className="font-serif font-bold text-xl" style={{ color: 'var(--ink-strong)' }}>
               {suspect.name}
             </span>
+            {isBaseline && (
+              <span
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded-sm border"
+                style={{ background: style.badgeBg, borderColor: `${style.accent}55`, color: style.badgeText }}
+              >
+                OFFICIAL RULING
+              </span>
+            )}
+            {!isBaseline && (
+              <span
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded-sm border"
+                style={{
+                  background: rank === 1 ? style.badgeBg : 'var(--paper-deep)',
+                  borderColor: rank === 1 ? `${style.accent}55` : 'var(--hairline)',
+                  color: rank === 1 ? style.badgeText : 'var(--ink-soft)',
+                }}
+              >
+                #{rank}
+              </span>
+            )}
             <span
               className="font-mono text-[10px] px-1.5 py-0.5 rounded-sm border"
-              style={{
-                background: rank === 1 ? 'var(--amber-bg)' : 'var(--paper-deep)',
-                borderColor: rank === 1 ? 'var(--amber-dim)' : 'var(--hairline)',
-                color: rank === 1 ? 'var(--amber-dim)' : 'var(--ink-soft)',
-              }}
+              style={{ background: style.badgeBg, borderColor: `${style.accent}33`, color: style.badgeText }}
             >
-              #{rank}
+              {style.labelText}
             </span>
           </div>
           <div className="text-sm mt-0.5" style={{ color: 'var(--ink-muted)' }}>{suspect.role}</div>
@@ -160,11 +190,23 @@ function SuspectCard({
       </div>
 
       <div className="px-5 py-4">
+        {isBaseline && (
+          <div
+            className="mb-3 p-2 rounded-sm border text-xs font-mono"
+            style={{ background: `${style.accent}0a`, borderColor: `${style.accent}33`, color: style.accent }}
+          >
+            Null hypothesis — official ruling. The model scores this against the same corpus.
+            A high score here means the data supports the suicide ruling; a lower score
+            means the 2026 forensic claims and alternative sources weigh against it.
+          </div>
+        )}
+
         <ProbBar
           probability={result.probability}
           ciLower={result.ci_lower}
           ciUpper={result.ci_upper}
           grounded={grounded}
+          accent={style.accent}
         />
 
         {!grounded && (
@@ -188,6 +230,15 @@ function SuspectCard({
             <FeatureRow label="timeline"    value={suspect.features.timeline_proximity}      contribution={result.feature_contributions.timeline ?? 0} />
             <FeatureRow label="investigator" value={Math.min(1, suspect.features.named_by_investigator_count / 20)} contribution={result.feature_contributions.investigator ?? 0} />
             <FeatureRow label="contradiction" value={Math.min(1, suspect.features.contradiction_count / 25)} contribution={result.feature_contributions.contradiction_penalty ?? 0} />
+          </div>
+        )}
+
+        {suspect.sourceNote && (
+          <div
+            className="mt-3 p-3 rounded-sm border text-xs"
+            style={{ background: 'var(--fog-bg)', borderColor: '#c0ccd8', color: 'var(--slate)' }}
+          >
+            <span className="font-mono font-semibold">Source note: </span>{suspect.sourceNote}
           </div>
         )}
 
@@ -230,9 +281,13 @@ export default function SuspectScoringPage() {
     }));
   }, [weights, grounded]);
 
+  // Separate baseline from the rest for ranking purposes
+  const baseline = scores.find((s) => s.suspect.archetype === 'baseline');
+  const nonBaseline = scores.filter((s) => s.suspect.archetype !== 'baseline');
+
   const ranked = useMemo(() => {
-    return [...scores].sort((a, b) => b.result.probability - a.result.probability);
-  }, [scores]);
+    return [...nonBaseline].sort((a, b) => b.result.probability - a.result.probability);
+  }, [nonBaseline]);
 
   const setWeight = (key: keyof FeatureWeights, val: number) => {
     setWeights((w) => ({ ...w, [key]: val }));
@@ -245,9 +300,10 @@ export default function SuspectScoringPage() {
         Probability scoring model
       </h1>
       <p className="text-lg max-w-3xl mb-6" style={{ color: 'var(--ink-muted)' }}>
-        Weighted logistic combination of corpus-derived features. Output is a model estimate — not a
-        forensic determination. The official ruling is suicide. Toggle Grounded mode off to see what
-        the model looks like without Fivetran data behind it.
+        Weighted logistic combination of corpus-derived features across 11 suspects and archetypes.
+        Output is a model estimate — not a forensic determination. The official ruling is suicide.
+        The Kurt Cobain baseline card is the null hypothesis; all other suspects are scored against
+        the same corpus. Toggle Grounded mode off to see what the model looks like without Fivetran.
       </p>
 
       {/* ── Grounded / Ungrounded toggle ── */}
@@ -305,7 +361,7 @@ export default function SuspectScoringPage() {
           <div className="eyebrow mb-3">Feature weight sensitivity</div>
           <p className="text-sm mb-4" style={{ color: 'var(--ink-muted)' }}>
             Adjust the weight each feature contributes to the scoring model. Drag any slider to
-            argue with the model's assumptions. Changes apply immediately to all four suspect cards.
+            argue with the model's assumptions. Changes apply immediately to all 11 suspect cards.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
             {WEIGHT_LABELS.map(({ key, label, desc }) => (
@@ -348,8 +404,26 @@ export default function SuspectScoringPage() {
         </div>
       )}
 
-      {/* ── Suspect cards grid ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      {/* ── Baseline card (Kurt Cobain / official ruling) ── */}
+      {baseline && (
+        <div className="mb-6">
+          <div className="eyebrow mb-3" style={{ color: '#4a90a4' }}>
+            Null hypothesis baseline — official ruling
+          </div>
+          <div className="grid grid-cols-1">
+            <SuspectCard
+              suspect={baseline.suspect}
+              result={baseline.result}
+              grounded={grounded}
+              rank={0}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── Suspect cards grid — 3 per row on desktop ── */}
+      <div className="eyebrow mb-3">Alternative-theory suspects — ranked by model score</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {ranked.map(({ suspect, result }, idx) => (
           <SuspectCard
             key={suspect.id}
@@ -371,6 +445,8 @@ export default function SuspectScoringPage() {
         represent the model's estimate given the available published evidence, not forensic findings.
         The official ruling is suicide (Seattle PD Case #94-108620, 1994; King County ME). No claim
         here constitutes a factual allegation. All evidence cited is from publicly available sources.
+        Burnett &amp; Wilkins (2026) claims are labeled as peer-reviewed; the official ruling has not
+        been amended as of February 2026.
       </div>
     </div>
   );

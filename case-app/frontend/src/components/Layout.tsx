@@ -43,7 +43,7 @@ export default function Layout() {
             <Link to="/" className="flex items-center gap-3 shrink-0 min-w-0 group">
               <div
                 className="h-10 w-10 rounded-sm flex items-center justify-center shrink-0"
-                style={{ background: 'var(--amber)' }}
+                style={{ background: 'var(--cassette)' }}
               >
                 <CaseMark className="h-6 w-6" style={{ color: 'var(--slate-deep)' }} />
               </div>
@@ -53,7 +53,7 @@ export default function Layout() {
                 </div>
                 <div
                   className="mt-0.5 font-mono font-medium uppercase tracking-[0.22em]"
-                  style={{ fontSize: '10px', color: 'rgba(184,168,122,0.8)' }}
+                  style={{ fontSize: '10px', color: 'rgba(196,167,71,0.8)' }}
                 >
                   Fivetran ODI · Unstructured Data Model
                 </div>
@@ -68,7 +68,7 @@ export default function Layout() {
                   end={to === '/'}
                   className={({ isActive }) =>
                     `relative px-2 py-2 font-semibold tracking-wide transition-colors text-[11.5px] uppercase font-mono whitespace-nowrap ${
-                      isActive ? 'text-[var(--amber)]' : 'text-white/75 hover:text-white'
+                      isActive ? 'text-[var(--cassette)]' : 'text-white/75 hover:text-white'
                     }`
                   }
                 >
@@ -78,7 +78,7 @@ export default function Layout() {
                       {isActive && (
                         <span
                           className="absolute left-2.5 right-2.5 -bottom-[1px] h-[2px]"
-                          style={{ background: 'var(--amber)' }}
+                          style={{ background: 'var(--rust)' }}
                         />
                       )}
                     </>
@@ -115,11 +115,11 @@ export default function Layout() {
                     className={({ isActive }) =>
                       `px-3 py-2 rounded-sm text-center font-medium border font-mono text-[11px] uppercase ${
                         isActive
-                          ? 'text-[var(--slate-deep)] border-[var(--amber)]'
+                          ? 'text-white border-[var(--rust)]'
                           : 'border-white/15 text-white/80 hover:bg-white/10'
                       }`
                     }
-                    style={({ isActive }) => isActive ? { background: 'var(--amber)' } : {}}
+                    style={({ isActive }) => isActive ? { background: 'var(--rust)' } : {}}
                   >
                     {label}
                   </NavLink>
@@ -143,7 +143,7 @@ export default function Layout() {
             <div className="flex items-center gap-2 mb-3">
               <div
                 className="h-7 w-7 rounded-sm flex items-center justify-center"
-                style={{ background: 'var(--amber)' }}
+                style={{ background: 'var(--cassette)' }}
               >
                 <CaseMark className="h-4 w-4" style={{ color: 'var(--slate-deep)' }} />
               </div>
@@ -208,14 +208,14 @@ function DemoSwitcher() {
         onClick={() => setOpen((o) => !o)}
         className="inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider border transition-colors"
         style={{
-          background: 'rgba(184,168,122,0.2)',
-          color: 'var(--amber)',
-          borderColor: 'rgba(184,168,122,0.4)',
+          background: 'rgba(196,167,71,0.18)',
+          color: 'var(--cassette)',
+          borderColor: 'rgba(196,167,71,0.4)',
         }}
       >
         <span
-          className="h-1.5 w-1.5 rounded-full"
-          style={{ background: 'var(--amber)', animation: 'signal-pulse 1.8s ease-in-out infinite' }}
+          className="h-1.5 w-1.5 rounded-sm"
+          style={{ background: 'var(--cassette)', animation: 'signal-pulse 1.8s ease-in-out infinite' }}
         />
         Demos
         <svg viewBox="0 0 24 24" className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
