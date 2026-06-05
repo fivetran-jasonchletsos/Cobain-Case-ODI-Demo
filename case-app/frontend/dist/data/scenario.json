@@ -27,7 +27,7 @@
       "model": "gold.fct_claim",
       "layer": "gold",
       "grain": "claim_id",
-      "description": "All extracted corpus claims with source_type, named_person, direction (supporting/contradicting), sworn flag, and confidence score from Cortex."
+      "description": "All extracted corpus claims with source_type, named_person, direction (supporting/contradicting), sworn flag, and confidence score from the run-time agents."
     }
   ],
   "manual_time_days": "4 to 7 days",

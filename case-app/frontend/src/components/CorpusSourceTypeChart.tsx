@@ -137,7 +137,7 @@ export default function CorpusSourceTypeChart() {
       <div className="flex items-center gap-5 mt-2 mb-3 flex-wrap">
         <div className="flex items-center gap-1.5">
           <div style={{ width: 12, height: 12, background: 'var(--rain)', opacity: 0.85, border: '0.5px solid var(--rain)' }} />
-          <span className="font-mono text-[10px]" style={{ color: 'var(--ink-soft)' }}>Unstructured (requires Fivetran + Cortex)</span>
+          <span className="font-mono text-[10px]" style={{ color: 'var(--ink-soft)' }}>Unstructured (requires Fivetran + run-time agents)</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div style={{ width: 12, height: 12, background: 'var(--cassette)', opacity: 0.85, border: '0.5px solid var(--cassette-dim)' }} />
@@ -146,7 +146,7 @@ export default function CorpusSourceTypeChart() {
       </div>
 
       <p className="font-mono text-[11px]" style={{ color: 'var(--ink-soft)' }}>
-        Roughly 80% of the corpus is unstructured. Fivetran ingest + Cortex extraction is the precondition for AI scoring.
+        Roughly 80% of the corpus is unstructured. Fivetran ingest + dbt-wizard run-time agent extraction is the precondition for AI scoring.
       </p>
     </div>
   );

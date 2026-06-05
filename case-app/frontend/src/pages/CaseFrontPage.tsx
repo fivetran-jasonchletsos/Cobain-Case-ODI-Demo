@@ -227,7 +227,7 @@ export default function CaseFrontPage() {
                 { label: 'Sources (23 long-tail)', desc: 'Investigator archives, documentary transcripts, true-crime podcast feeds, FOIA portals, news microfilm. Not available in any standard connector catalog.' },
                 { label: 'Fivetran Connector SDK', desc: 'Every CDC row landed into Iceberg (MDLS) on S3 in open Apache Iceberg format. One copy of the bytes, source-type and provenance preserved.' },
                 { label: 'Iceberg (MDLS) on S3', desc: 'Snowflake, Athena, and Trino read the same Iceberg bytes via external catalogs. No copies, no extracts — multi-engine reads against a single open table.' },
-                { label: 'dbt Labs (bronze → silver → gold)', desc: 'Fivetran Transformations triggers dbt Labs the moment the source sync finishes. Bronze → silver → gold stays in Iceberg. Cortex extracts entities, claims, and attributions inside the dbt graph.' },
+                { label: 'dbt Labs (bronze → silver → gold)', desc: 'Fivetran Transformations triggers dbt Labs the moment the source sync finishes. Bronze → silver → gold stays in Iceberg. dbt-wizard run-time agents extract entities, claims, and attributions inside the dbt graph.' },
                 { label: 'React surface', desc: 'gold.fct_claim · gold.dim_suspect · gold.fct_witness_attribution · gold.fct_timeline_anchor materialize the suspect scoring, hypothesis, and timeline pages here.' },
               ].map((item) => (
                 <div key={item.label} className="flex gap-3">

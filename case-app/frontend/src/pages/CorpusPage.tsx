@@ -187,7 +187,7 @@ const SOURCE_EXAMPLES = [
         author: 'Tom Grant',
         year: 1994,
         publisher: 'tomgrant.com',
-        notes: 'The largest single corpus source by document count. Named person references, timeline claims, and source attributions extracted via Cortex. All extracted as allegations.',
+        notes: 'The largest single corpus source by document count. Named person references, timeline claims, and source attributions extracted by dbt-wizard run-time agents. All extracted as allegations.',
         sworn: false,
       },
     ],
@@ -322,7 +322,7 @@ export default function CorpusPage() {
       <div className="eyebrow mb-3">Gold layer models (dbt)</div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
-          { model: 'gold.fct_claim', desc: 'One row per extracted claim. Source type, named person, claim text, sworn flag, confidence score from Cortex.' },
+          { model: 'gold.fct_claim', desc: 'One row per extracted claim. Source type, named person, claim text, sworn flag, confidence score from the run-time agents.' },
           { model: 'gold.dim_suspect', desc: 'Suspect dimension: name, role, corpus mention counts, feature scores used by the probability model.' },
           { model: 'gold.fct_witness_attribution', desc: 'Claims attributed to named witnesses or sources. Joins to fct_claim. Filters to sworn vs unsworn.' },
           { model: 'gold.fct_timeline_anchor', desc: 'Resolved timeline events with corroboration counts. April 5–8, 1994 window and surrounding context.' },
